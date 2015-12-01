@@ -126,7 +126,6 @@ function makeElementSelector(rootElem$) {
 
 const wrapTopLevelVtree =
   (vTree, rootElem) => {
-    console.log(vTree, rootElem)
     if (vTree.elm === rootElem || vTree === rootElem) {
       return vTree
     }

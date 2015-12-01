@@ -66,14 +66,17 @@ describe(`Rendering`, () => {
         }
       }
       let {sources} = run(app, {
-        DOM: makeDOMDriver(createRenderTarget(`fuckThisTest`)),
+        DOM: makeDOMDriver(createRenderTarget(`theRoot`)),
       })
 
       sources.DOM.select(`:root`).observable.forEach(root => {
         let classNameRegex = /top\-most/
         assert.strictEqual(root.tagName, `DIV`)
-        assert.notStrictEqual(classNameRegex.exec(root.className), null)
-        assert.strictEqual(classNameRegex.exec(root.className)[0], `top-most`)
+        assert.strictEqual(root.id, `theRoot`)
+        let child = root.children[0]
+        assert.strictEqual(child.tagName, `DIV`)
+        assert.notStrictEqual(classNameRegex.exec(child.className), null)
+        assert.strictEqual(classNameRegex.exec(child.className)[0], `top-most`)
         done()
       })
     })
@@ -202,11 +205,12 @@ describe(`Rendering`, () => {
       // Make assertions
       sources.DOM.select(`:root`).observable
         .observe(root => {
-          console.log(root)
-          assert.notStrictEqual(root, null)
-          assert.notStrictEqual(typeof root, `undefined`)
-          assert.strictEqual(root.tagName, `H3`)
-          assert.strictEqual(root.className, `top-most cycle-scope-foo`)
+          assert.strictEqual(root.tagName, `DIV`)
+          let child = root.children[0]
+          assert.notStrictEqual(child, null)
+          assert.notStrictEqual(typeof child, `undefined`)
+          assert.strictEqual(child.tagName, `H3`)
+          assert.strictEqual(child.className, `top-most cycle-scope-foo`)
           done()
         })
     })

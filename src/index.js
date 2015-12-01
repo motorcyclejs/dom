@@ -165,24 +165,23 @@ const makeDOMDriver =
         validateDOMDriverInput(view$)
 
         const rootElem$ =
-          most.create(
-            add =>
-              view$
-                .flatMap(parseTree)
-                .reduce(
-                  (prevView, newView) => {
-                    const newVtree = wrapTopLevelVtree(newView, rootElem)
-                    patch(
-                      prevView,
-                      newVtree
-                    )
-                    add(newVtree.elm)
-                    return newVtree
-                  }
-                  , rootElem
+          view$
+            .map(parseTree)
+            .switch()
+            .loop(
+              (prevView, newView) => {
+                const newVtree = wrapTopLevelVtree(newView, rootElem)
+                patch(
+                  prevView,
+                  newVtree
                 )
-          )
-        rootElem$.drain()
+                return {
+                  seed: newVtree,
+                  value: newVtree.elm,
+                }
+              },
+              rootElem
+            )
 
         return {
           namespace: [],

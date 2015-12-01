@@ -124,6 +124,22 @@ function makeElementSelector(rootElem$) {
   }
 }
 
+const wrapTopLevelVtree =
+  (vTree, rootElem) => {
+    console.log(vTree, rootElem)
+    if (vTree.elm === rootElem || vTree === rootElem) {
+      return vTree
+    }
+    let props = {}
+    if (rootElem.id) {
+      props.id = rootElem.id
+    }
+    if (rootElem.className) {
+      props.className = rootElem.className
+    }
+    return h(rootElem.tagName, {props}, [vTree])
+  }
+
 const validateDOMDriverInput =
   view$ => {
     if (!view$ || typeof view$.observe !== `function`) {
@@ -153,9 +169,14 @@ const makeDOMDriver =
                 .flatMap(parseTree)
                 .reduce(
                   (prevView, newView) => {
-                    patch(prevView, newView)
-                    add(newView.elm)
-                    return newView
+                    const prevVtree = wrapTopLevelVtree(prevView, rootElem)
+                    const newVtree = wrapTopLevelVtree(newView, rootElem)
+                    patch(
+                      prevVtree,
+                      newVtree
+                    )
+                    add(newVtree.elm)
+                    return newVtree
                   }
                   , rootElem
                 )

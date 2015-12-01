@@ -126,17 +126,20 @@ function makeElementSelector(rootElem$) {
 
 const wrapTopLevelVtree =
   (vTree, rootElem) => {
-    if (vTree.elm === rootElem || vTree === rootElem) {
+    const {id = ``, className = ``} = vTree.data.props || {}
+    const sameId = id === rootElem.id
+    const sameClassName = className === rootElem.className
+    const sameTagName = vTree.sel.indexOf(rootElem.tagName) !== -1
+
+    if (sameId && sameClassName && sameTagName) {
       return vTree
     }
-    let props = {}
-    if (rootElem.id) {
-      props.id = rootElem.id
-    }
-    if (rootElem.className) {
-      props.className = rootElem.className
-    }
-    return h(rootElem.tagName, {props}, [vTree])
+
+    const {id: rootId = ``, className: rootClass = ``} = rootElem
+    return h(rootElem.tagName, {props: {
+      id: rootId,
+      className: rootClass,
+    }}, [vTree])
   }
 
 const validateDOMDriverInput =
@@ -168,10 +171,9 @@ const makeDOMDriver =
                 .flatMap(parseTree)
                 .reduce(
                   (prevView, newView) => {
-                    const prevVtree = wrapTopLevelVtree(prevView, rootElem)
                     const newVtree = wrapTopLevelVtree(newView, rootElem)
                     patch(
-                      prevVtree,
+                      prevView,
                       newVtree
                     )
                     add(newVtree.elm)

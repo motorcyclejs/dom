@@ -167,18 +167,18 @@ const makeDOMDriver =
             .loop(
               (prevView, newView) => {
                 const newVtree = wrapTopLevelVtree(newView, rootElem)
-                patch(
+                const vnode = patch(
                   prevView,
                   newVtree
                 )
                 return {
-                  seed: newVtree,
-                  value: newVtree.elm,
+                  seed: vnode,
+                  value: vnode.elm,
                 }
               },
               rootElem
             )
-
+        rootElem$.drain()
         return {
           namespace: [],
           select: makeElementSelector(rootElem$),

@@ -70,11 +70,7 @@ const makeEventsSelector =
           if (!elements) {
             return most.empty()
           }
-          return most.merge(
-            ...fastMap(elements, el => {
-              return fromEvent(eventName, el, useCapture)
-            })
-         )
+          return fromEvent(eventName, elements, useCapture)
         }).switch().multicast()
     }
 
@@ -124,6 +120,24 @@ function makeElementSelector(rootElem$) {
   }
 }
 
+const wrapTopLevelVtree =
+  (vTree, rootElem) => {
+    const {id = ``, className = ``} = vTree.data.props || {}
+    const sameId = id === rootElem.id
+    const sameClassName = className === rootElem.className
+    const sameTagName = vTree.sel.indexOf(rootElem.tagName) !== -1
+
+    if (sameId && sameClassName && sameTagName) {
+      return vTree
+    }
+
+    const {id: rootId = ``, className: rootClass = ``} = rootElem
+    return h(rootElem.tagName, {props: {
+      id: rootId,
+      className: rootClass,
+    }}, [vTree])
+  }
+
 const validateDOMDriverInput =
   view$ => {
     if (!view$ || typeof view$.observe !== `function`) {
@@ -147,21 +161,24 @@ const makeDOMDriver =
         validateDOMDriverInput(view$)
 
         const rootElem$ =
-          most.create(
-            add =>
-              view$
-                .flatMap(parseTree)
-                .reduce(
-                  (prevView, newView) => {
-                    patch(prevView, newView)
-                    add(newView.elm)
-                    return newView
-                  }
-                  , rootElem
+          view$
+            .map(parseTree)
+            .switch()
+            .loop(
+              (prevView, newView) => {
+                const newVtree = wrapTopLevelVtree(newView, rootElem)
+                const vnode = patch(
+                  prevView,
+                  newVtree
                 )
-          )
+                return {
+                  seed: vnode,
+                  value: vnode.elm,
+                }
+              },
+              rootElem
+            )
         rootElem$.drain()
-
         return {
           namespace: [],
           select: makeElementSelector(rootElem$),

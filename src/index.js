@@ -153,20 +153,20 @@ const makeDOMDriver =
       view$ => {
         validateDOMDriverInput(view$)
 
-        const rootElem$ =
-          most.create(
-            add =>
-              view$
-                .flatMap(parseTree)
-                .reduce(
-                  (prevView, newView) => {
-                    patch(prevView, newView)
-                    add(newView.elm)
-                    return newView
-                  }
-                  , rootElem
-                )
-          )
+        const rootElem$ = most.create(
+          (add, end, error) => {
+            view$
+              .map(parseTree)
+              .switch()
+              .reduce((prevView, newView) => {
+                const vnode = patch(prevView, newView)
+                add(vnode.elm)
+                return newView
+              }, rootElem)
+              .then(end)
+              .catch(error)
+          }
+        )
         rootElem$.drain()
 
         return {

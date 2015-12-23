@@ -66,6 +66,8 @@ const makeDOMDriver =
             )
             .skip(1)
 
+        rootVNode$.drain()
+
         return {
           namespace: [],
           select: makeSelectorParser(hold(rootVNode$)),

@@ -55,7 +55,7 @@ const makeDOMDriver =
       view$ => {
         domDriverInputGuard(view$)
 
-        const rootVNode$ =
+        const rootVNode$ = hold(
           view$
             .map(vTreeParser)
             .switch()
@@ -65,10 +65,13 @@ const makeDOMDriver =
               rootElement
             )
             .skip(1)
+          )
+
+        rootVNode$.drain()
 
         return {
           namespace: [],
-          select: makeSelectorParser(hold(rootVNode$)),
+          select: makeSelectorParser(rootVNode$),
           isolateSink,
           isolateSource,
         }

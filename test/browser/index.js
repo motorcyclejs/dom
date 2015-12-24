@@ -172,6 +172,25 @@ describe(`Rendering`, () => {
         })
     })
 
+  it(`should render when sources are not subscribed to`, done => {
+    const app = () => ({
+      DOM: most.just(div('.test-div', [
+        h2('hello')
+      ]))
+    })
+
+    run(app, {DOM: makeDOMDriver(createRenderTarget())})
+
+    setTimeout(() => {
+      const div_ = document.querySelector('.test-div')
+      assert.strictEqual(div_.tagName, 'DIV')
+      const child = div_.children[0]
+      assert.strictEqual(child.tagName, 'H2')
+      assert.strictEqual(child.textContent, 'hello')
+      done()
+    }, 10)
+  })
+
   it(`should have isolateSource() and isolateSink() in source`, done => {
     function app() {
       return {

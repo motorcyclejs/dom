@@ -1,4 +1,5 @@
 import Stream from 'most/lib/Stream'
+import {empty} from 'most'
 import MulticastSource from 'most/lib/source/MulticastSource'
 import forEach from 'fast.js/array/forEach'
 
@@ -75,8 +76,8 @@ EventTargetSource.prototype.run = function run(sink, scheduler) {
 
 const fromEvent =
   (type, nodes, useCapture = false) => {
-    if (!nodes.length) {
-      throw new Error(`nodes must be a NodeList or an Array of DOM Nodes`)
+    if (!nodes.length || nodes.length === 0) {
+      return empty()
     }
 
     let source

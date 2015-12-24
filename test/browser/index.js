@@ -658,13 +658,8 @@ describe(`fromEvent`, () => {
     click(nodes[0])
   })
 
-  it(`should throw error if not given a NodeList`, done => {
-    const element = createRenderTargetWithChildren()
-    const nodes = element.querySelector('h1')
-    assert.throws(
-      () => fromEvent('click', nodes, false),
-      /nodes must be a NodeList or an Array of DOM Nodes/
-    )
+  it(`should not throw error if given an empty array`, done => {
+    assert.doesNotThrow(() => fromEvent('click', [], false))
     done()
   })
 })

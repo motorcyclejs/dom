@@ -54,6 +54,10 @@ const makeDOMDriver =
   (containerElementSelectors,
     {modules = defaultOptions.modules} = defaultOptions
   ) => {
+    if (!Array.isArray(modules)) {
+      throw new Error(`Optional modules option must be ` +
+        `an array for snabbdom modules`)
+    }
     const patch = snabbdom.init(modules)
     const rootElement = domSelectorParser(containerElementSelectors)
 

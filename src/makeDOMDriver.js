@@ -41,13 +41,19 @@ const domDriverInputGuard =
     }
   }
 
-const makeDOMDriver =
-  (containerElementSelectors, modules = [
+const defaultOptions = {
+  modules: [
     require(`snabbdom/modules/class`),
     require(`snabbdom/modules/props`),
     require(`snabbdom/modules/attributes`),
     require(`snabbdom/modules/style`),
-  ]) => {
+  ],
+}
+
+const makeDOMDriver =
+  (containerElementSelectors,
+    {modules = defaultOptions.modules} = defaultOptions
+  ) => {
     const patch = snabbdom.init(modules)
     const rootElement = domSelectorParser(containerElementSelectors)
 

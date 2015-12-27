@@ -67,6 +67,7 @@ describe(`Rendering`, () => {
       assert.throws(() => {
         makeDOMDriver(createRenderTarget(), {modules: `1`})
       }, /Optional modules option must be an array for snabbdom modules/)
+      done()
     })
   })
 

@@ -44,7 +44,11 @@ More examples can be found [here](https://github.com/motorcyclejs/examples).
 
 **container** :: Element|CSS-Selector - A DOM node or a CSS-Selector which points to an existing DOM node that will be used as the initial place to patch the DOM.
 
-**modules** :: Array - An array of [Snabbdom modules](https://github.com/paldepind/snabbdom#creating-modules) which will be used by Snabbdom to add/remove behaviors that are available to you from the `h()` or `hyperscript-helpers` functions.
+**options** :: Object - An (optional) options object.
+
+*optional parameters*
+
+(modules) :: Array - An array of [Snabbdom modules](https://github.com/paldepind/snabbdom#creating-modules) which will be used by Snabbdom to add/remove behaviors that are available to you from the `h()` or `hyperscript-helpers` functions.
 
 ```js
 import {makeDOMDriver} from '@motorcycle/dom'
@@ -55,12 +59,14 @@ makeDOMDriver(document.querySelector('#app'))
 
 /* with modules */
 /* these are the default modules used */
-makeDOMDriver('#app', [
-  require(`snabbdom/modules/class`),
-  require(`snabbdom/modules/props`),
-  require(`snabbdom/modules/attributes`),
-  require(`snabbdom/modules/style`),
-])
+makeDOMDriver('#app', {
+  modules: [
+    require(`snabbdom/modules/class`),
+    require(`snabbdom/modules/props`),
+    require(`snabbdom/modules/attributes`),
+    require(`snabbdom/modules/style`),
+  ]
+})
 ```
 
 ### h(selector, data, children)

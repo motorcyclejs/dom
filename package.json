@@ -57,7 +57,7 @@
     "@most/hold": "0.2.0",
     "@motorcycle/core": "^1.0.0",
     "fast.js": "0.1.1",
-    "hyperscript-helpers": "2.0.2",
+    "hyperscript-helpers": "2.0.3",
     "matches-selector": "1.0.0",
     "snabbdom": "0.2.8",
     "snabbdom-selector": "0.3.2"

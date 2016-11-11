@@ -1,52 +1,42 @@
-import { Stream } from 'most'
+// TODO: add all types of events DOM.select().events() could have
+
+export interface VNode<T extends Node> {
+  selector: string;
+  data: VNodeData;
+  children: VNodeChildren;
+  key: string | number | null;
+  element: T | null;
+  text: string | null;
+}
+
+export type VNodes = Array<VNode<any>>;
+
+export interface TextVNode extends VNode<Text> {
+  text: string;
+}
 
 export interface VNodeData {
-  // modules - use any because Object type is useless
   props?: any;
   attrs?: any;
-  class?: any;
+  classes?: any;
   style?: any;
-  dataset?: any;
-  on?: any;
-  hero?: any;
-  // end of modules
-  hook?: Hooks;
+  dataSet?: any;
   key?: string | number;
-  ns?: string; // for SVGs
-  fn?: () => VNode; // for thunks
-  args?: Array<any>; // for thunks
-  // Cycle.js only
-  isolate?: string
-  static?: boolean
+  ns?: string; // for Svgs
+  hook?: Hooks;
 }
 
-export interface VNode {
-  sel: string | undefined;
-  data?: VNodeData | undefined;
-  children?: Array<VNode | string | Stream<VNode> | null> | undefined;
-  elm?: HTMLElement | Text | undefined;
-  text?: string | undefined;
-  key?: string | number | undefined;
-}
-
-export interface ThunkData extends VNodeData {
-  fn: () => VNode;
-  args: Array<any>;
-}
-
-export interface Thunk extends VNode {
-  data: ThunkData;
-}
+export type VNodeChildren = Array<VNode<any>>;
 
 export type PreHook = () => any;
-export type InitHook = (vNode: VNode) => any;
-export type CreateHook = (emptyVNode: VNode, vNode: VNode) => any;
-export type InsertHook = (vNode: VNode) => any;
-export type PrePatchHook = (oldVNode: VNode, vNode: VNode) => any;
-export type UpdateHook = (oldVNode: VNode, vNode: VNode) => any;
-export type PostPatchHook = (oldVNode: VNode, vNode: VNode) => any;
-export type DestroyHook = (vNode: VNode) => any;
-export type RemoveHook = (vNode: VNode, removeCallback: () => void) => any;
+export type InitHook = (vNode: VNode<any>) => any;
+export type CreateHook = (emptyVNode: VNode<any>, vNode: VNode<any>) => any;
+export type InsertHook = (vNode: VNode<any>) => any;
+export type PrePatchHook = (oldVNode: VNode<any>, vNode: VNode<any>) => any;
+export type UpdateHook = (oldVNode: VNode<any>, vNode: VNode<any>) => any;
+export type PostPatchHook = (oldVNode: VNode<any>, vNode: VNode<any>) => any;
+export type DestroyHook = (vNode: VNode<any>) => any;
+export type RemoveHook = (vNode: VNode<any>, removeCallback: () => void) => any;
 export type PostHook = () => any;
 
 export interface Hooks {

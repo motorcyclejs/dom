@@ -2,8 +2,8 @@
   "compilerOptions": {
     "declaration": true,
     "moduleResolution": "node",
-    "module": "commonjs",
-    "target": "es5",
+    "module": "es2015",
+    "target": "es2015",
     "lib": [
       "dom",
       "es5",
@@ -15,10 +15,9 @@
     "noUnusedLocals": true,
     "strictNullChecks": true,
     "types": [
-      "mocha",
       "node"
     ],
-    "outDir": "lib/commonjs"
+    "outDir": "lib/es2015"
   },
   "files": [
     "src/index.ts"

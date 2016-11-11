@@ -16,10 +16,8 @@ function updateDataSet(formerVNode: VNode<any>, vNode: VNode<any>) {
       delete element.dataset[key];
 
   for (key in dataSet)
-    if (formerDataset[key] !== dataSet[key]) {
-      console.log(element.dataset);
+    if (formerDataset[key] !== dataSet[key])
       element.dataset[key] = dataSet[key];
-    }
 }
 
 export { updateDataSet as create, updateDataSet as update };

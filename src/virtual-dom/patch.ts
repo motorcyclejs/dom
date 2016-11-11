@@ -57,4 +57,3 @@ export function init(modules: Array<Hooks>) {
     return vNode;
   };
 }
-

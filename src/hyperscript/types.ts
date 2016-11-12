@@ -19,7 +19,7 @@ export type HtmlTagNames =
   'textarea' | 'tfoot' | 'th' | 'thead' | 'time' | 'title' | 'tr' | 'track' |
   'tt' | 'u' | 'ul' | 'video' | 'wbr' | 'xmp';
 
-export type SvgTagNames =
+export type SvgTagNames = 'svg' |
   'a' | 'altGlyph' | 'altGlyphDef' | 'altGlyphItem' | 'animate' | 'animateColor' |
   'animateMotion' | 'animateTransform' | 'circle' | 'clipPath' | 'colorProfile' |
   'cursor' | 'defs' | 'desc' | 'ellipse' | 'feBlend' | 'feColorMatrix' |

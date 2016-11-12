@@ -3,12 +3,16 @@ import { HtmlTagNames } from './types';
 import { h } from './h';
 
 interface HyperscriptHelperFn<T extends Element> {
-  (selector: string, data: VNodeData, children: VNodeChildren): VNode<T>;
-  (data: VNodeData, children: VNodeChildren): VNode<T>;
+  (selector: string, data: VNodeData, children: Array<VNode<any> | string | null>): VNode<T>;
+  (data: VNodeData, children: Array<VNode<any> | string | null>): VNode<T>;
 }
 
 function hh <T extends Element> (tagName: HtmlTagNames): HyperscriptHelperFn<T> {
-  return function helper (selector: string, data: VNodeData, children: VNodeChildren) {
+  return function helper(
+    selector: string,
+    data: VNodeData,
+    children: Array<VNode<any> | string | null>)
+  {
     return isSelector(selector)
       ? h<T>(tagName + selector, data, children)
       : h<T>(tagName, selector, data as VNodeChildren);

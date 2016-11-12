@@ -1,15 +1,16 @@
 import { VNode, VNodeData, VNodeChildren } from '../interfaces';
 import { ElementVNode } from './ElementVNode';
 
-export function svg<T extends SVGElement>(
+export function svgh<T extends SVGElement>(
   selector: string,
   data: VNodeData,
-  children: VNodeChildren,
+  children: Array<VNode<any> | null>,
 ): VNode<T>
 {
-  const filteredChildren: Array<VNode<any>> = children.filter(Boolean);
+  const filteredChildren: Array<VNode<any>> =
+    children.filter(x => x !== null) as Array<VNode<any>>;
 
-  addNamespace(selector, data, children);
+  addNamespace(selector, data, filteredChildren);
 
   return new ElementVNode<T>(selector, data, filteredChildren, data && data.key || null);
 }

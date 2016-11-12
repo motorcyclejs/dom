@@ -1,7 +1,12 @@
 import { VNode } from '../../interfaces';
 
-const requestAnimationFrame =
-  (typeof window !== 'undefined' && window.requestAnimationFrame) || setTimeout;
+let requestAnimationFrame: any;
+
+function setRequestAnimationFrame() {
+  if (!requestAnimationFrame)
+    requestAnimationFrame =
+      (typeof window !== 'undefined' && window.requestAnimationFrame) || setTimeout;
+}
 
 function nextFrame(fn: any) {
   requestAnimationFrame(function () {
@@ -102,6 +107,7 @@ function applyRemoveStyle(vNode: VNode<any>, callback: () => void) {
 }
 
 export {
+  setRequestAnimationFrame as pre,
   updateStyle as create,
   updateStyle as update,
   applyDestroyStyle as destroy,

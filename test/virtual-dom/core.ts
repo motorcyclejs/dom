@@ -13,7 +13,7 @@ let patch = init([
 ]);
 
 import { h } from '../../src/hyperscript/h';
-import { svg } from '../../src/hyperscript/svg';
+import { svgh } from '../../src/hyperscript/svg';
 
 function prop(name: string) {
   return function (obj: any): any {
@@ -77,7 +77,7 @@ describe('snabbdom', function () {
       elm = patch(vnode0, h('div', {}, [h('div', { ns: SVGNamespace }, [])])).element;
       assert.equal((elm.firstChild as HTMLElement).namespaceURI, SVGNamespace);
 
-      elm = patch(vnode0, svg('svg', {}, [
+      elm = patch(vnode0, svgh('svg', {}, [
         h('foreignObject', {}, [
           h('div', {}, ['I am HTML embedded in SVG']),
         ]),

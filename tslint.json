@@ -8,7 +8,7 @@
     "indent": [true, "spaces"],
     "no-angle-bracket-type-assertion": true,
     "max-line-length": [true, 100],
-    "max-file-line-count": [true, 300],
+    "max-file-line-count": [true, 350],
     "no-consecutive-blank-lines": true,
     "member-access": true,
     "no-trailing-whitespace": true,

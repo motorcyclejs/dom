@@ -9,7 +9,7 @@
   "scripts": {
     "test:lint": "tslint src/**/*.ts src/*.ts",
     "test:unit": "mocha -r ts-node/register -r jsdom-global/register test/index.ts",
-    "test:debug": "devtool -r ts-node/register -r jsdom-global/register ./node_modules/.bin/mocha test/index.ts",
+    "test:debug": "node --debug-brk --inspect ./node_modules/.bin/_mocha -r ts-node/register -r jsdom-global/register ./test/index.ts",
     "test": "npm run test:lint && npm run test:unit",
     "commit": "git-cz",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 --preset angular",
@@ -61,7 +61,11 @@
     "most": "^1.0.5",
     "most-subject": "^5.1.0"
   },
+  "peerDependencies": {
+    "@motorcycle/core": "^1.5.0"
+  },
   "devDependencies": {
+    "@motorcycle/core": "^1.5.0",
     "@types/mocha": "^2.2.32",
     "@types/node": "^6.0.46",
     "browserify": "^13.1.1",

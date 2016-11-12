@@ -6,7 +6,7 @@ import * as styleModule from '../../src/virtual-dom/modules/styles';
 
 fakeRaf.use();
 let patch = init([
-  styleModule
+  styleModule,
 ]);
 
 describe('style', function() {
@@ -56,17 +56,17 @@ describe('style', function() {
     assert.equal((element.firstChild as HTMLElement).style.fontSize, '10px');
   });
   it('updates delayed styles in next frame', function() {
-    let patch = init([
-      styleModule
+    let patch2 = init([
+      styleModule,
     ]);
     let vnode1 = h('i', {style: {fontSize: '14px', delayed: {fontSize: '16px'}}}, []);
     let vnode2 = h('i', {style: {fontSize: '18px', delayed: {fontSize: '20px'}}}, []);
-    element = patch(vnode0, vnode1).element as HTMLElement;
+    element = patch2(vnode0, vnode1).element as HTMLElement;
     assert.equal(element.style.fontSize, '14px');
     fakeRaf.step();
     fakeRaf.step();
     assert.equal(element.style.fontSize, '16px');
-    element = patch(vnode1, vnode2).element as HTMLElement;
+    element = patch2(vnode1, vnode2).element as HTMLElement;
     assert.equal(element.style.fontSize, '18px');
     fakeRaf.step();
     fakeRaf.step();

@@ -28,12 +28,7 @@ export class VNodePatcher {
   public execute(formerVNode: VNode<any>, vNode: VNode<any>, vNodeUpdater: VNodeUpdater) {
     let data: VNodeData = vNode.data;
 
-    const prepatchHook = xOrMagic(data.hook).prepatch;
-
-    if (prepatchHook) {
-      prepatchHook(formerVNode, vNode);
-      data = vNode.data;
-    }
+    this.prepatchHook(formerVNode, vNode);
 
     if (formerVNode === vNode) return;
 
@@ -81,5 +76,16 @@ export class VNodePatcher {
 
     if (postpatchHook)
       postpatchHook(formerVNode, vNode);
+  }
+
+  private prepatchHook(
+    formerVNode: VNode<any>,
+    vNode: VNode<any>)
+  {
+    const prepatchHook = xOrMagic(vNode.data.hook).prepatch;
+
+    if (prepatchHook) {
+      prepatchHook(formerVNode, vNode);
+    }
   }
 }

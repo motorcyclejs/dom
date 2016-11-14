@@ -12,22 +12,27 @@ export class VNodePatcher {
   private elementFactory: ElementFactory;
   private vNodeAttacher: VNodeAttacher;
   private vNodeRemover: VNodeRemover;
+  private vNodeUpdater: VNodeUpdater;
 
   constructor(
     moduleCallbacks: ModuleCallbacks,
     elementFactory: ElementFactory,
     vNodeAttacher: VNodeAttacher,
-    vNodeRemover: VNodeRemover) {
+    vNodeRemover: VNodeRemover)
+  {
     this.moduleCallbacks = moduleCallbacks;
     this.elementFactory = elementFactory;
     this.vNodeAttacher = vNodeAttacher;
     this.vNodeRemover = vNodeRemover;
+    this.vNodeUpdater =
+      new VNodeUpdater(elementFactory, vNodeAttacher, vNodeRemover);
   }
 
-  public execute(formerVNode: VNode<any>, vNode: VNode<any>, vNodeUpdater: VNodeUpdater) {
+  public execute(formerVNode: VNode<any>, vNode: VNode<any>) {
     // Can this be before prepatchHook?
     // The tests pass! Are we missing some tests?
-    if (formerVNode === vNode) return;
+    if (formerVNode === vNode)
+      return;
 
     this.prepatchHook(formerVNode, vNode);
 
@@ -43,12 +48,19 @@ export class VNodePatcher {
     const text: string | null = vNode.text;
 
     if (!text)
-      this.updateChildren(formerVNode, vNode, vNodeUpdater);
+      this.updateChildren(formerVNode, vNode);
 
     if (formerVNode.text !== text)
       setTextContent(vNode.element, text);
 
     this.postpatchHook(formerVNode, vNode);
+  }
+
+  private prepatchHook(formerVNode: VNode<any>, vNode: VNode<any>) {
+    const prepatchHook = xOrMagic(vNode.data.hook).prepatch;
+
+    if (prepatchHook)
+      prepatchHook(formerVNode, vNode);
   }
 
   private replaceVNode(formerVNode: VNode<any>, vNode: VNode<any>) {
@@ -60,11 +72,14 @@ export class VNodePatcher {
     this.vNodeRemover.execute(parentElement, [formerVNode], 0, 0);
   }
 
-  private updateChildren(
-    formerVNode: VNode<any>,
-    vNode: VNode<any>,
-    vNodeUpdater: VNodeUpdater)
-  {
+  private updateHook(formerVNode: VNode<any>, vNode: VNode<any>) {
+    const updateHook = xOrMagic(vNode.data.hook).update;
+
+    if (updateHook)
+      updateHook(formerVNode, vNode);
+  }
+
+  private updateChildren(formerVNode: VNode<any>, vNode: VNode<any>) {
     const element = vNode.element;
     const formerChildren: Array<VNode<any>> = formerVNode.children;
     const children: Array<VNode<any>> = vNode.children;
@@ -78,7 +93,7 @@ export class VNodePatcher {
       formerAndCurrentVNodeHaveChildren && formerChildren !== children;
 
     if (childrenShouldBeReplaced)
-      return vNodeUpdater.execute(element, formerChildren, children, this);
+      return this.vNodeUpdater.execute(element, formerChildren, children, this);
 
     const onlyVNodeHasChildren: boolean =
       !formerVNodeHasChildren && vNodeHasChildren;
@@ -100,20 +115,6 @@ export class VNodePatcher {
 
     if (!formerAndCurrentVNodeHaveChildren && formerVNodeHasText)
       setTextContent(element, ``);
-  }
-
-  private prepatchHook(formerVNode: VNode<any>, vNode: VNode<any>) {
-    const prepatchHook = xOrMagic(vNode.data.hook).prepatch;
-
-    if (prepatchHook)
-      prepatchHook(formerVNode, vNode);
-  }
-
-  private updateHook(formerVNode: VNode<any>, vNode: VNode<any>) {
-    const updateHook = xOrMagic(vNode.data.hook).update;
-
-    if (updateHook)
-      updateHook(formerVNode, vNode);
   }
 
   private postpatchHook(formerVNode: VNode<any>, vNode: VNode<any>) {

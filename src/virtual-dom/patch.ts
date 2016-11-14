@@ -21,8 +21,8 @@ export function init(modules: Array<Hooks>) {
   const vNodeAttacher: VNodeAttacher =
     new VNodeAttacher(elementFactory);
 
-  const vNodeUpdater: VNodeUpdater =
-    new VNodeUpdater(elementFactory, vNodeAttacher, vNodeRemover);
+  // const vNodeUpdater: VNodeUpdater =
+  //   new VNodeUpdater(elementFactory, vNodeAttacher, vNodeRemover);
 
   const vNodePatcher: VNodePatcher =
     new VNodePatcher(moduleCallbacks, elementFactory, vNodeAttacher, vNodeRemover);
@@ -38,7 +38,7 @@ export function init(modules: Array<Hooks>) {
     }
 
     if (vNodesAreEqual(formerVNode as VNode<any>, vNode)) {
-      vNodePatcher.execute(formerVNode as VNode<any>, vNode, vNodeUpdater);
+      vNodePatcher.execute(formerVNode as VNode<any>, vNode);
     } else {
       element = (formerVNode as VNode<any>).element;
       parentElement = parentNode(element);

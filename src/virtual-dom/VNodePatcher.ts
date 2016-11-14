@@ -40,19 +40,10 @@ export class VNodePatcher {
       return this.replaceVNode(formerVNode, vNode);
 
     vNode.element = formerVNode.element;
-
+    
     this.moduleCallbacks.update(formerVNode, vNode);
-
     this.updateHook(formerVNode, vNode);
-
-    const text: string | null = vNode.text;
-
-    if (!text)
-      this.updateChildren(formerVNode, vNode);
-
-    if (formerVNode.text !== text)
-      setTextContent(vNode.element, text);
-
+    this.update(formerVNode, vNode);
     this.postpatchHook(formerVNode, vNode);
   }
 
@@ -77,6 +68,16 @@ export class VNodePatcher {
 
     if (updateHook)
       updateHook(formerVNode, vNode);
+  }
+
+  private update(formerVNode: VNode<any>, vNode: VNode<any>) {
+    const text: string | null = vNode.text;
+
+    if (!text)
+      return this.updateChildren(formerVNode, vNode);
+
+    if (formerVNode.text !== text)
+      setTextContent(vNode.element, text);
   }
 
   private updateChildren(formerVNode: VNode<any>, vNode: VNode<any>) {

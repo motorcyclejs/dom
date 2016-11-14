@@ -1,16 +1,14 @@
-/// <reference path="../typings.d.ts" />
-
 import * as assert from 'assert'
-import Cycle from '@cycle/most-run'
-import { div, h3, makeDOMDriver } from '../../src/index'
+import * as Motorcycle from '@motorcycle/core'
+import { div, h3, DomSource, makeDomDriver } from '../src/index'
 import * as most from 'most'
-import { createRenderTarget } from '../helpers'
+import { createRenderTarget } from './helpers'
 
 describe('makeDOMDriver', function () {
   it('should accept a DOM element as input', function () {
     const element = createRenderTarget();
     assert.doesNotThrow(function () {
-      makeDOMDriver(element);
+      makeDomDriver(element);
     });
   });
 
@@ -19,20 +17,20 @@ describe('makeDOMDriver', function () {
     const element = createRenderTarget();
     element.id = id;
     assert.doesNotThrow(function () {
-      makeDOMDriver('#' + id);
+      makeDomDriver('#' + id);
     });
   });
 
   it('should not accept a selector to an unknown element as input', function () {
     assert.throws(function () {
-      makeDOMDriver('#nonsenseIdToNothing');
+      makeDomDriver('#nonsenseIdToNothing');
     }, /Cannot render into unknown element/);
   });
 
   it('should not accept a number as input', function () {
     const x: any = 123
     assert.throws(function () {
-      makeDOMDriver(x as HTMLElement);
+      makeDomDriver(x as HTMLElement);
     }, /Given container is not a DOM element neither a selector string/);
   });
 
@@ -42,17 +40,16 @@ describe('DOM Driver', function () {
   it('should have isolateSource() and isolateSink() in source', function (done) {
     function app() {
       return {
-        DOM: most.of(div())
+        DOM: most.of(div({}, []))
       };
     }
 
-    const {sources, run} = Cycle(app, {
-      DOM: makeDOMDriver(createRenderTarget())
+    const { sources } = Motorcycle.run < { DOM: DomSource }, any>(app, {
+      DOM: makeDomDriver(createRenderTarget())
     });
-    let dispose = run();
+
     assert.strictEqual(typeof sources.DOM.isolateSource, 'function');
     assert.strictEqual(typeof sources.DOM.isolateSink, 'function');
-    dispose();
     done();
   });
 
@@ -63,16 +60,15 @@ describe('DOM Driver', function () {
     function app() {
       return {
         DOM: number$.map(number =>
-            h3('.target', String(number))
+          h3('.target', {}, [String(number)])
         )
       };
     }
 
-    const {sources, run} = Cycle(app, {
-      DOM: makeDOMDriver(createRenderTarget())
+    const { sources } = Motorcycle.run<{ DOM: DomSource }, any>(app, {
+      DOM: makeDomDriver(createRenderTarget())
     });
 
-    let dispose: Function;
     sources.DOM.select(':root').elements().skip(1).observe(function (root: HTMLElement) {
       const selectEl = root.querySelector('.target');
       assert.notStrictEqual(selectEl, null);
@@ -80,12 +76,10 @@ describe('DOM Driver', function () {
       assert.strictEqual(selectEl.tagName, 'H3');
       assert.notStrictEqual(selectEl.textContent, '3');
       if (selectEl.textContent === '2') {
-        dispose();
         setTimeout(() => {
           done();
         }, 100);
       }
     });
-    dispose = run();
   });
 });

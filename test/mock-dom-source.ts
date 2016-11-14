@@ -1,15 +1,16 @@
 import * as assert from 'assert';
-import Motorcycle from '@motorcycle/core';
-import { h4, h3, h2, div, h, mockDOMSource, DOMSource } from '../src/index';
+import * as Motorcycle from '@motorcycle/core';
+
+import { h4, h3, h2, div, h, mockDomSource, DomSource } from '../src/index';
 import * as most from 'most';
 
-describe('mockDOMSource', function () {
+describe('mockDomSource', function () {
   it('should be in accessible in the API', function () {
-    assert.strictEqual(typeof mockDOMSource, 'function');
+    assert.strictEqual(typeof mockDomSource, 'function');
   });
 
   it('should make an Observable for clicks on `.foo`', function (done) {
-    const userEvents = mockDOMSource({
+    const userEvents = mockDomSource({
       '.foo': {
         'click': most.of(135),
       },
@@ -25,7 +26,7 @@ describe('mockDOMSource', function () {
   });
 
   it('should make multiple user event Observables', function (done) {
-    const userEvents = mockDOMSource({
+    const userEvents = mockDomSource({
       '.foo': {
         'click': most.of(135),
       },
@@ -35,8 +36,8 @@ describe('mockDOMSource', function () {
     });
     most.combine<number, number, number>(
       (a: number, b: number) => a * b,
-      userEvents.select('.foo').events('click'),
-      userEvents.select('.bar').events('scroll')
+      userEvents.select('.foo').events<number>('click'),
+      userEvents.select('.bar').events<number>('scroll')
     ).subscribe({
       next: ev => {
         assert.strictEqual(ev, 270);
@@ -48,7 +49,7 @@ describe('mockDOMSource', function () {
   });
 
   it('should make multiple user event Observables on the same selector', function (done) {
-    const userEvents = mockDOMSource({
+    const userEvents = mockDomSource({
       '.foo': {
         'click': most.of(135),
         'scroll': most.of(3),
@@ -69,7 +70,7 @@ describe('mockDOMSource', function () {
   });
 
   it('should return an empty Observable if query does not match', function (done) {
-    const userEvents = mockDOMSource({
+    const userEvents = mockDomSource({
       '.foo': {
         'click': most.of(135),
       },
@@ -79,17 +80,17 @@ describe('mockDOMSource', function () {
   });
 
   it('should return empty Observable for select().elements and none is defined', function (done) {
-    const userEvents = mockDOMSource({
+    const userEvents = mockDomSource({
       '.foo': {
         'click': most.of(135),
       },
     });
     userEvents.select('.foo').elements()
-      .subscribe({next: assert.fail, error: assert.fail, complete: done});
+      .subscribe({next: done, error: done, complete: done});
   });
 
   it('should return defined Observable for select().elements', function (done) {
-    const mockedDOMSource = mockDOMSource({
+    const mockedDOMSource = mockDomSource({
       '.foo': {
         elements: most.of(135),
       },
@@ -106,7 +107,7 @@ describe('mockDOMSource', function () {
   });
 
   it('should return defined Observable when chaining .select()', function (done) {
-    const mockedDOMSource = mockDOMSource({
+    const mockedDOMSource = mockDomSource({
       '.bar': {
         '.foo': {
           '.baz': {
@@ -128,13 +129,13 @@ describe('mockDOMSource', function () {
 
   it('multiple .select()s should not throw when given empty mockedSelectors', () => {
     assert.doesNotThrow(() => {
-      const DOM = mockDOMSource({});
+      const DOM = mockDomSource({});
       DOM.select('.something').select('.other').events('click');
     });
   });
 
   it('multiple .select()s should return some observable if not defined', () => {
-    const DOM = mockDOMSource({})
+    const DOM = mockDomSource({})
     const domSource = DOM.select('.something').select('.other');
     assert(
       domSource.events('click') instanceof most.Stream,
@@ -150,9 +151,9 @@ describe('isolation on MockedDOMSource', function () {
     function app() {
       return {
         DOM: most.of(
-          h3('.top-most', [
+          h3('.top-most', {}, [
             h2('.bar', {}, ['Wrong']),
-            div('.child.___foo', [
+            div('.child.___foo', {}, [
               h4('.bar', {}, ['Correct']),
             ]),
           ]),
@@ -160,8 +161,8 @@ describe('isolation on MockedDOMSource', function () {
       };
     }
 
-    const { sources, dispose } = Motorcycle.run<{ DOM: DOMSource }, any>(app, {
-      DOM: () => mockDOMSource({
+    const { sources, dispose } = Motorcycle.run<{ DOM: DomSource }, any>(app, {
+      DOM: () => mockDomSource({
         '.___foo': {
           '.bar': {
             elements: most.from(['skipped', 135])
@@ -173,7 +174,7 @@ describe('isolation on MockedDOMSource', function () {
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
 
     // Make assertions
-    isolatedDOMSource.select('.bar').elements().skip(1).take(1).observe((elements: number) => {
+    isolatedDOMSource.select('.bar').elements().skip(1).take(1).observe((elements: any) => {
       assert.strictEqual(elements, 135);
       setTimeout(() => {
         dispose();
@@ -189,8 +190,8 @@ describe('isolation on MockedDOMSource', function () {
       };
     }
 
-    const { sources, dispose } = Motorcycle.run<{ DOM: DOMSource }, any>(app, {
-      DOM: () => mockDOMSource({}),
+    const { sources, dispose } = Motorcycle.run<{ DOM: DomSource }, any>(app, {
+      DOM: () => mockDomSource({}),
     });
     const isolatedDOMSource = sources.DOM.isolateSource(sources.DOM, 'foo');
     // Make assertions
@@ -202,25 +203,30 @@ describe('isolation on MockedDOMSource', function () {
 
   it('should prevent parent from DOM.selecting() inside the isolation', function (done) {
     type AppSources = {
-      DOM: DOMSource,
+      DOM: DomSource,
     };
+
     function app(sources: AppSources) {
-      return {
-        DOM: most.of(
-          h3('.top-most', [
-            sources.DOM.isolateSink(most.of(
-              div('.foo', [
-                h4('.bar', {}, ['Wrong']),
-              ]),
-            ), 'ISOLATION'),
-            h2('.bar', ['Correct']),
+      const DOM = sources.DOM.isolateSink(
+        most.of(
+          div('.foo', {}, [
+            h4('.bar', {}, ['Wrong']),
           ]),
         ),
+        'ISOLATION'
+      )
+        .map(view => div('.top-most', {}, [
+          view,
+          h2('.bar', {}, ['Correct'])
+        ]))
+
+      return {
+        DOM,
       };
     }
 
     const { sources, dispose } = Motorcycle.run(app, {
-      DOM: () => mockDOMSource({
+      DOM: () => mockDomSource({
         '.___ISOLATION': {
           '.bar': {
             elements: most.from(['skipped', 'Wrong']),
@@ -232,8 +238,9 @@ describe('isolation on MockedDOMSource', function () {
       }),
     });
 
-    sources.DOM.select('.bar').elements().skip(1).take(1).observe(function (x: string) {
+    sources.DOM.select('.bar').elements().skip(1).take(1).observe(function (x: any) {
       assert.strictEqual(x, 'Correct');
+      dispose();
       done();
     });
   });

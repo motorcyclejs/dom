@@ -17,8 +17,7 @@ export class VNodePatcher {
     moduleCallbacks: ModuleCallbacks,
     elementFactory: ElementFactory,
     vNodeAttacher: VNodeAttacher,
-    vNodeRemover: VNodeRemover)
-  {
+    vNodeRemover: VNodeRemover) {
     this.moduleCallbacks = moduleCallbacks;
     this.elementFactory = elementFactory;
     this.vNodeAttacher = vNodeAttacher;
@@ -33,17 +32,12 @@ export class VNodePatcher {
     // Are we missing some tests?
     if (formerVNode === vNode) return;
 
+    if (!vNodesAreEqual(formerVNode, vNode))
+      return this.replaceVNode(formerVNode, vNode);
+
     let element = vNode.element = formerVNode.element;
     let formerChildren = formerVNode.children;
     let children = vNode.children;
-
-    if (!vNodesAreEqual(formerVNode, vNode)) {
-      const parentElement = parentNode(formerVNode.element);
-      element = this.elementFactory.make(vNode);
-      insertBefore(parentElement, element, formerVNode.element);
-      this.vNodeRemover.execute(parentElement, [formerVNode], 0, 0);
-      return;
-    }
 
     this.moduleCallbacks.update(formerVNode, vNode);
 
@@ -69,6 +63,15 @@ export class VNodePatcher {
     }
 
     this.postpatchHook(formerVNode, vNode);
+  }
+
+  private replaceVNode(formerVNode: VNode<any>, vNode: VNode<any>) {
+    // Here’s some funkiness going on with the types and names.
+    // @TODO: clean this up.
+    const parentElement: HTMLElement = parentNode(formerVNode.element);
+    const element: Node = this.elementFactory.make(vNode);
+    insertBefore(parentElement, element, formerVNode.element);
+    this.vNodeRemover.execute(parentElement, [formerVNode], 0, 0);
   }
 
   private prepatchHook(formerVNode: VNode<any>, vNode: VNode<any>) {

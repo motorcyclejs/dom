@@ -46,12 +46,7 @@ export class VNodePatcher {
 
     this.moduleCallbacks.update(formerVNode, vNode);
 
-    const updateHook = xOrMagic(data.hook).update;
-
-    if (updateHook) {
-      updateHook(formerVNode, vNode);
-      data = vNode.data;
-    }
+    this.updateHook(formerVNode, vNode);
 
     if (!vNode.text) {
       const formerChildCount = formerChildren.length;
@@ -86,6 +81,14 @@ export class VNodePatcher {
 
     if (prepatchHook) {
       prepatchHook(formerVNode, vNode);
+    }
+  }
+
+  private updateHook(formerVNode: VNode<any>, vNode: VNode<any>) {
+    const updateHook = xOrMagic(vNode.data.hook).update;
+
+    if (updateHook) {
+      updateHook(formerVNode, vNode);
     }
   }
 }

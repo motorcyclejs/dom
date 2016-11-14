@@ -73,22 +73,17 @@ export class VNodePatcher {
       postpatchHook(formerVNode, vNode);
   }
 
-  private prepatchHook(
-    formerVNode: VNode<any>,
-    vNode: VNode<any>)
-  {
+  private prepatchHook(formerVNode: VNode<any>, vNode: VNode<any>) {
     const prepatchHook = xOrMagic(vNode.data.hook).prepatch;
 
-    if (prepatchHook) {
+    if (prepatchHook)
       prepatchHook(formerVNode, vNode);
-    }
   }
 
   private updateHook(formerVNode: VNode<any>, vNode: VNode<any>) {
     const updateHook = xOrMagic(vNode.data.hook).update;
 
-    if (updateHook) {
+    if (updateHook)
       updateHook(formerVNode, vNode);
-    }
   }
 }

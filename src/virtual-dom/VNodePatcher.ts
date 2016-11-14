@@ -36,11 +36,14 @@ export class VNodePatcher {
 
     this.prepatchHook(formerVNode, vNode);
 
+    // This check is redundant and will never get called.
+    // The execute method is only called from patch when vNodes are equal.
+    // Unless prepatchHook above can modify the hooks, this should be removed.
     if (!vNodesAreEqual(formerVNode, vNode))
       return this.replaceVNode(formerVNode, vNode);
 
     vNode.element = formerVNode.element;
-    
+
     this.moduleCallbacks.update(formerVNode, vNode);
     this.updateHook(formerVNode, vNode);
     this.update(formerVNode, vNode);

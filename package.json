@@ -8,8 +8,8 @@
   "typings": "lib/es2015/index.d.ts",
   "scripts": {
     "test:lint": "tslint src/**/*.ts src/*.ts",
-    "test:unit": "mocha -r ts-node/register -r jsdom-global/register test/index.ts",
-    "test:debug": "node --debug-brk --inspect ./node_modules/.bin/_mocha -r ts-node/register -r jsdom-global/register ./test/index.ts",
+    "test:unit": "mocha -r ts-node/register -r jsdom-global/register test/*.ts test/**/*.ts",
+    "test:debug": "node --debug-brk --inspect ./node_modules/.bin/_mocha -r ts-node/register -r jsdom-global/register test/*.ts test/**/*.ts",
     "test": "npm run test:lint && npm run test:unit",
     "commit": "git-cz",
     "changelog": "conventional-changelog --infile CHANGELOG.md --same-file --release-count 0 --preset angular",

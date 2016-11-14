@@ -1,4 +1,4 @@
-import { VNode, VNodeData } from '../interfaces';
+import { VNode } from '../interfaces';
 import { ModuleCallbacks } from './ModuleCallbacks';
 import { ElementFactory } from './ElementFactory';
 import { VNodeAttacher } from './VNodeAttacher';
@@ -26,10 +26,11 @@ export class VNodePatcher {
   }
 
   public execute(formerVNode: VNode<any>, vNode: VNode<any>, vNodeUpdater: VNodeUpdater) {
-    let data: VNodeData = vNode.data;
-
     this.prepatchHook(formerVNode, vNode);
 
+    // Could this be at the top of the method?
+    // The tests will still pass!
+    // Are we missing some tests?
     if (formerVNode === vNode) return;
 
     let element = vNode.element = formerVNode.element;
@@ -67,10 +68,7 @@ export class VNodePatcher {
       setTextContent(element, vNode.text);
     }
 
-    const postpatchHook = xOrMagic(data.hook).postpatch;
-
-    if (postpatchHook)
-      postpatchHook(formerVNode, vNode);
+    this.postpatchHook(formerVNode, vNode);
   }
 
   private prepatchHook(formerVNode: VNode<any>, vNode: VNode<any>) {
@@ -85,5 +83,12 @@ export class VNodePatcher {
 
     if (updateHook)
       updateHook(formerVNode, vNode);
+  }
+
+  private postpatchHook(formerVNode: VNode<any>, vNode: VNode<any>) {
+    const postpatchHook = xOrMagic(vNode.data.hook).postpatch;
+
+    if (postpatchHook)
+      postpatchHook(formerVNode, vNode);
   }
 }

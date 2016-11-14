@@ -4,7 +4,6 @@ import { ModuleCallbacks } from './ModuleCallbacks';
 import { ElementFactory } from './ElementFactory';
 import { VNodeRemover } from './VNodeRemover';
 import { VNodeAttacher } from './VNodeAttacher';
-import { VNodeUpdater } from './VNodeUpdater';
 import { VNodePatcher } from './VNodePatcher';
 import { vNodesAreEqual, vNodeFromElement } from './helpers';
 
@@ -20,9 +19,6 @@ export function init(modules: Array<Hooks>) {
 
   const vNodeAttacher: VNodeAttacher =
     new VNodeAttacher(elementFactory);
-
-  // const vNodeUpdater: VNodeUpdater =
-  //   new VNodeUpdater(elementFactory, vNodeAttacher, vNodeRemover);
 
   const vNodePatcher: VNodePatcher =
     new VNodePatcher(moduleCallbacks, elementFactory, vNodeAttacher, vNodeRemover);

@@ -47,15 +47,15 @@ export class VNodeUpdater {
       } else if (!formerEndVNode) {
         formerEndVNode = formerChildren[--formerEndIndex];
       } else if (vNodesAreEqual(formerStartVNode, startVNode)) {
-        vNodePatcher.execute(formerStartVNode, startVNode, this);
+        vNodePatcher.execute(formerStartVNode, startVNode);
         formerStartVNode = formerChildren[++formerStartIndex];
         startVNode = children[++startIndex];
       } else if (vNodesAreEqual(formerEndVNode, endVNode)) {
-        vNodePatcher.execute(formerEndVNode, endVNode, this);
+        vNodePatcher.execute(formerEndVNode, endVNode);
         formerEndVNode = formerChildren[--formerEndIndex];
         endVNode = children[--endIndex];
       } else if (vNodesAreEqual(formerStartVNode, endVNode)) { // Vnode moved right
-        vNodePatcher.execute(formerStartVNode, endVNode, this);
+        vNodePatcher.execute(formerStartVNode, endVNode);
         insertBefore(
           parentElement,
           formerStartVNode.element,
@@ -64,7 +64,7 @@ export class VNodeUpdater {
         formerStartVNode = formerChildren[++formerStartIndex];
         endVNode = children[--endIndex];
       } else if (vNodesAreEqual(formerEndVNode, startVNode)) { // Vnode moved left
-        vNodePatcher.execute(formerEndVNode, startVNode, this);
+        vNodePatcher.execute(formerEndVNode, startVNode);
         insertBefore(parentElement, formerEndVNode.element, formerStartVNode.element);
         formerEndVNode = formerChildren[--formerEndIndex];
         startVNode = children[++startIndex];
@@ -84,7 +84,7 @@ export class VNodeUpdater {
           startVNode = children[++startIndex];
         } else {
           reorderableElement = formerChildren[formerIndexKey];
-          vNodePatcher.execute(reorderableElement, startVNode, this);
+          vNodePatcher.execute(reorderableElement, startVNode);
           formerChildren[formerIndexKey] = undefined as any;
           insertBefore(
             parentElement,

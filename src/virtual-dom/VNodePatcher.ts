@@ -25,42 +25,28 @@ export class VNodePatcher {
   }
 
   public execute(formerVNode: VNode<any>, vNode: VNode<any>, vNodeUpdater: VNodeUpdater) {
-    this.prepatchHook(formerVNode, vNode);
-
-    // Could this be at the top of the method?
-    // The tests will still pass!
-    // Are we missing some tests?
+    // Can this be before prepatchHook?
+    // The tests pass! Are we missing some tests?
     if (formerVNode === vNode) return;
+
+    this.prepatchHook(formerVNode, vNode);
 
     if (!vNodesAreEqual(formerVNode, vNode))
       return this.replaceVNode(formerVNode, vNode);
 
-    let element = vNode.element = formerVNode.element;
-    let formerChildren = formerVNode.children;
-    let children = vNode.children;
+    vNode.element = formerVNode.element;
 
     this.moduleCallbacks.update(formerVNode, vNode);
 
     this.updateHook(formerVNode, vNode);
 
-    if (!vNode.text) {
-      const formerChildCount = formerChildren.length;
-      const childCount = children.length;
+    const text: string | null = vNode.text;
 
-      if (formerChildCount && childCount) {
-        if (formerChildren !== children)
-          vNodeUpdater.execute(element, formerChildren, children, this);
-      } else if (children.length) {
-        if (formerVNode.text) setTextContent(element, '');
-        this.vNodeAttacher.execute(element, null, children, 0, childCount - 1);
-      } else if (formerChildCount) {
-        this.vNodeRemover.execute(element, formerChildren, 0, formerChildCount - 1);
-      } else if (formerVNode.text) {
-        setTextContent(element, '');
-      }
-    } else if (formerVNode.text !== vNode.text) {
-      setTextContent(element, vNode.text);
-    }
+    if (!text)
+      this.updateChildren(formerVNode, vNode, vNodeUpdater);
+
+    if (formerVNode.text !== text)
+      setTextContent(vNode.element, text);
 
     this.postpatchHook(formerVNode, vNode);
   }
@@ -72,6 +58,48 @@ export class VNodePatcher {
     const element: Node = this.elementFactory.make(vNode);
     insertBefore(parentElement, element, formerVNode.element);
     this.vNodeRemover.execute(parentElement, [formerVNode], 0, 0);
+  }
+
+  private updateChildren(
+    formerVNode: VNode<any>,
+    vNode: VNode<any>,
+    vNodeUpdater: VNodeUpdater)
+  {
+    const element = vNode.element;
+    const formerChildren: Array<VNode<any>> = formerVNode.children;
+    const children: Array<VNode<any>> = vNode.children;
+    const formerChildCount: number = formerChildren.length;
+    const childCount: number = children.length;
+    const formerVNodeHasChildren: boolean = !!formerChildCount;
+    const vNodeHasChildren: boolean = !!childCount;
+    const formerAndCurrentVNodeHaveChildren: boolean =
+      formerVNodeHasChildren && vNodeHasChildren;
+    const childrenShouldBeReplaced: boolean =
+      formerAndCurrentVNodeHaveChildren && formerChildren !== children;
+
+    if (childrenShouldBeReplaced)
+      return vNodeUpdater.execute(element, formerChildren, children, this);
+
+    const onlyVNodeHasChildren: boolean =
+      !formerVNodeHasChildren && vNodeHasChildren;
+    const formerVNodeHasText: boolean = !!formerVNode.text;
+
+    if (onlyVNodeHasChildren && formerVNodeHasText)
+      setTextContent(element, ``);
+
+    if (onlyVNodeHasChildren)
+      return this.vNodeAttacher
+        .execute(element, null, children, 0, childCount - 1);
+
+    const onlyFormerVNodeHasChildren: boolean =
+      formerVNodeHasChildren && !vNodeHasChildren;
+
+    if (onlyFormerVNodeHasChildren)
+      return this.vNodeRemover
+        .execute(element, formerChildren, 0, formerChildCount - 1);
+
+    if (!formerAndCurrentVNodeHaveChildren && formerVNodeHasText)
+      setTextContent(element, ``);
   }
 
   private prepatchHook(formerVNode: VNode<any>, vNode: VNode<any>) {

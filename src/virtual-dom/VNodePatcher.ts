@@ -29,16 +29,11 @@ export class VNodePatcher {
   }
 
   public execute(formerVNode: VNode<any>, vNode: VNode<any>) {
-    // Can this be before prepatchHook?
-    // The tests pass! Are we missing some tests?
+    this.prepatchHook(formerVNode, vNode);
+    
     if (formerVNode === vNode)
       return;
 
-    this.prepatchHook(formerVNode, vNode);
-
-    // This check is redundant and will never get called.
-    // The execute method is only called from patch when vNodes are equal.
-    // Unless prepatchHook above can modify the hooks, this should be removed.
     if (!vNodesAreEqual(formerVNode, vNode))
       return this.replaceVNode(formerVNode, vNode);
 

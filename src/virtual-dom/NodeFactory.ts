@@ -18,7 +18,7 @@ export class NodeFactory {
   }
 
   public make(vNode: VNode<any>): Node {
-     let data: VNodeData = vNode.data;
+    let data: VNodeData = vNode.data;
 
     const init = xOrMagic(data.hook).init;
     if (init !== void 0) {

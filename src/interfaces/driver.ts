@@ -8,10 +8,14 @@ export interface DomSource {
   events(eventType: StandardEvents, options?: EventFnOptions): Stream<any>;
   events<T>(eventType: StandardEvents, options?: EventFnOptions): Stream<T>;
 
+  customEvents(eventType: string, options?: EventFnOptions): Stream<any>;
+  customEvents<T>(eventType: string, options?: EventFnOptions): Stream<T>;
+
   isolateSource(source: DomSource, scope: string): DomSource;
   isolateSink(sink: Stream<any>, scope: string): Stream<any>;
 }
 
 export interface EventFnOptions {
   useCapture?: boolean;
+  passive?: boolean;
 }

@@ -8,7 +8,7 @@ import {
 } from './htmlDomApi';
 import { xOrMagic } from './helpers';
 
-export class ElementFactory {
+export class NodeFactory {
   private moduleCallbacks: ModuleCallbacks;
   private insertedVNodeQueue: VNodes;
 

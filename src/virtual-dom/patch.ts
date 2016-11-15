@@ -1,7 +1,7 @@
 import { VNode, Hooks, VNodes } from '../interfaces';
-import { insertBefore, nextSibling, parentNode } from './htmlDomApi';
+import { insertBefore, nextSibling, parentElement } from './htmlDomApi';
 import { ModuleCallbacks } from './ModuleCallbacks';
-import { ElementFactory } from './ElementFactory';
+import { NodeFactory } from './NodeFactory';
 import { VNodeRemover } from './VNodeRemover';
 import { VNodeAttacher } from './VNodeAttacher';
 import { VNodePatcher } from './VNodePatcher';
@@ -11,21 +11,21 @@ export function init(modules: Array<Hooks>) {
   const moduleCallbacks = new ModuleCallbacks(modules);
   const insertedVNodeQueue: VNodes = [];
 
-  const elementFactory: ElementFactory =
-    new ElementFactory(moduleCallbacks, insertedVNodeQueue);
+  const nodeFactory: NodeFactory =
+    new NodeFactory(moduleCallbacks, insertedVNodeQueue);
 
   const vNodeRemover: VNodeRemover =
     new VNodeRemover(moduleCallbacks);
 
   const vNodeAttacher: VNodeAttacher =
-    new VNodeAttacher(elementFactory);
+    new VNodeAttacher(nodeFactory);
 
   const vNodePatcher: VNodePatcher =
-    new VNodePatcher(moduleCallbacks, elementFactory, vNodeAttacher, vNodeRemover);
+    new VNodePatcher(moduleCallbacks, nodeFactory, vNodeAttacher, vNodeRemover);
 
   return function patch(formerVNode: VNode<any> | Element, vNode: VNode<any>): VNode<any> {
     let element: Element;
-    let parentElement: Element;
+    let elementParent: Element;
 
     moduleCallbacks.pre();
 
@@ -37,13 +37,13 @@ export function init(modules: Array<Hooks>) {
       vNodePatcher.execute(formerVNode as VNode<any>, vNode);
     } else {
       element = (formerVNode as VNode<any>).element;
-      parentElement = parentNode(element);
+      elementParent = parentElement(element);
 
-      elementFactory.make(vNode);
+      nodeFactory.make(vNode);
 
-      if (parentElement !== null) {
-        insertBefore(parentElement, vNode.element, nextSibling(element));
-        vNodeRemover.execute(parentElement, [formerVNode as VNode<any>], 0, 0);
+      if (elementParent !== null) {
+        insertBefore(elementParent, vNode.element, nextSibling(element));
+        vNodeRemover.execute(elementParent, [formerVNode as VNode<any>], 0, 0);
       }
     }
 

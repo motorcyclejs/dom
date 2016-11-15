@@ -1,27 +1,27 @@
 import { VNode } from '../interfaces';
 import { ModuleCallbacks } from './ModuleCallbacks';
-import { ElementFactory } from './ElementFactory';
+import { NodeFactory } from './NodeFactory';
 import { VNodeAttacher } from './VNodeAttacher';
 import { VNodeRemover } from './VNodeRemover';
 import { VNodeUpdater } from './VNodeUpdater';
-import { parentNode, setTextContent, insertBefore } from './htmlDomApi';
+import { parentElement, setTextContent, insertBefore } from './htmlDomApi';
 import { vNodesAreEqual, xOrMagic } from './helpers';
 
 export class VNodePatcher {
   private moduleCallbacks: ModuleCallbacks;
-  private elementFactory: ElementFactory;
+  private nodeFactory: NodeFactory;
   private vNodeAttacher: VNodeAttacher;
   private vNodeRemover: VNodeRemover;
   private vNodeUpdater: VNodeUpdater;
 
   constructor(
     moduleCallbacks: ModuleCallbacks,
-    elementFactory: ElementFactory,
+    elementFactory: NodeFactory,
     vNodeAttacher: VNodeAttacher,
     vNodeRemover: VNodeRemover)
   {
     this.moduleCallbacks = moduleCallbacks;
-    this.elementFactory = elementFactory;
+    this.nodeFactory = elementFactory;
     this.vNodeAttacher = vNodeAttacher;
     this.vNodeRemover = vNodeRemover;
     this.vNodeUpdater =
@@ -53,12 +53,10 @@ export class VNodePatcher {
   }
 
   private replaceVNode(formerVNode: VNode<any>, vNode: VNode<any>) {
-    // Here’s some funkiness going on with the types and names.
-    // @TODO: clean this up.
-    const parentElement: HTMLElement = parentNode(formerVNode.element);
-    const element: Node = this.elementFactory.make(vNode);
-    insertBefore(parentElement, element, formerVNode.element);
-    this.vNodeRemover.execute(parentElement, [formerVNode], 0, 0);
+    const elementParent: Element = parentElement(formerVNode.element);
+    const element: Node = this.nodeFactory.make(vNode);
+    insertBefore(elementParent, element, formerVNode.element);
+    this.vNodeRemover.execute(elementParent, [formerVNode], 0, 0);
   }
 
   private updateHook(formerVNode: VNode<any>, vNode: VNode<any>) {

@@ -1,12 +1,12 @@
 import { VNodes } from '../interfaces';
-import { ElementFactory } from './ElementFactory';
+import { NodeFactory } from './NodeFactory';
 import { insertBefore } from './htmlDomApi';
 
 export class VNodeAttacher {
-  private elementFactory: ElementFactory;
+  private nodeFactory: NodeFactory;
 
-  constructor(elementFactory: ElementFactory) {
-    this.elementFactory = elementFactory;
+  constructor(elementFactory: NodeFactory) {
+    this.nodeFactory = elementFactory;
   }
 
   public execute(
@@ -19,7 +19,7 @@ export class VNodeAttacher {
     for (; startIndex <= endIndex; ++startIndex) {
       insertBefore(
         parentElement,
-        this.elementFactory.make(vNodes[startIndex]),
+        this.nodeFactory.make(vNodes[startIndex]),
         before,
       );
     }

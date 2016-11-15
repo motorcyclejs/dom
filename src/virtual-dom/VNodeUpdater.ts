@@ -1,5 +1,5 @@
 import { VNode, VNodes } from '../interfaces';
-import { ElementFactory } from './ElementFactory';
+import { NodeFactory } from './NodeFactory';
 import { VNodeAttacher } from './VNodeAttacher';
 import { VNodeRemover } from './VNodeRemover';
 import { VNodePatcher } from './VNodePatcher';
@@ -7,16 +7,16 @@ import { insertBefore, nextSibling } from './htmlDomApi';
 import { vNodesAreEqual, mapKeyToFormerIndex } from './helpers';
 
 export class VNodeUpdater {
-  private elementFactory: ElementFactory;
+  private nodeFactory: NodeFactory;
   private vNodeAttacher: VNodeAttacher;
   private vNodeRemover: VNodeRemover;
 
   constructor(
-    elementFactory: ElementFactory,
+    elementFactory: NodeFactory,
     vNodeAttacher: VNodeAttacher,
     vNodeRemover: VNodeRemover)
   {
-    this.elementFactory = elementFactory;
+    this.nodeFactory = elementFactory;
     this.vNodeAttacher = vNodeAttacher;
     this.vNodeRemover = vNodeRemover;
   }
@@ -78,7 +78,7 @@ export class VNodeUpdater {
         if (!formerIndexKey) { // New element
           insertBefore(
             parentElement,
-            this.elementFactory.make(startVNode),
+            this.nodeFactory.make(startVNode),
             formerStartVNode.element,
           );
           startVNode = children[++startIndex];

@@ -45,7 +45,7 @@ export function vNodeClassName(element: Element): string {
 export function createRemovalCallback(childNode: Node, listenerCount: number) {
   return function callback() {
     if (--listenerCount === 0) {
-      const parent = api.parentNode(childNode);
+      const parent = api.parentElement(childNode);
       api.removeChild(parent, childNode);
     }
   };

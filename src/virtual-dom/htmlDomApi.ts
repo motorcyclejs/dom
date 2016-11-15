@@ -22,7 +22,7 @@ export function appendChild(node: Node, child: Node): void {
   node.appendChild(child);
 }
 
-export function parentNode(node: Node): HTMLElement {
+export function parentElement(node: Node): Element {
   return (node as any).parentElement;
 }
 

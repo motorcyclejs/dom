@@ -16,11 +16,11 @@ describe('mockDomSource', function () {
       },
     });
     userEvents.select('.foo').events('click').subscribe({
-      next: ev => {
+      next: (ev: number) => {
         assert.strictEqual(ev, 135);
         done();
       },
-      error: err => done(err),
+      error: (err: Error) => done(err),
       complete: () => {},
     });
   });

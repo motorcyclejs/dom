@@ -1,6 +1,6 @@
 import { Stream, empty } from 'most';
 import { findIndex } from '@most/prelude';
-import { DomSource, VNode } from './interfaces';
+import { DomSource, VNode } from '../interfaces';
 
 export function mockDomSource(config: MockConfig): DomSource {
   return new MockDomSource(config);

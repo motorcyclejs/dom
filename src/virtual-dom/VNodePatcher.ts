@@ -1,4 +1,4 @@
-import { VNode, VNodeData } from '../interfaces';
+import { VNode } from '../interfaces';
 import { ModuleCallbacks } from './ModuleCallbacks';
 import { ElementFactory } from './ElementFactory';
 import { VNodeAttacher } from './VNodeAttacher';
@@ -12,6 +12,7 @@ export class VNodePatcher {
   private elementFactory: ElementFactory;
   private vNodeAttacher: VNodeAttacher;
   private vNodeRemover: VNodeRemover;
+  private vNodeUpdater: VNodeUpdater;
 
   constructor(
     moduleCallbacks: ModuleCallbacks,
@@ -23,61 +24,100 @@ export class VNodePatcher {
     this.elementFactory = elementFactory;
     this.vNodeAttacher = vNodeAttacher;
     this.vNodeRemover = vNodeRemover;
+    this.vNodeUpdater =
+      new VNodeUpdater(elementFactory, vNodeAttacher, vNodeRemover);
   }
 
-  public execute(formerVNode: VNode<any>, vNode: VNode<any>, vNodeUpdater: VNodeUpdater) {
-    let data: VNodeData = vNode.data;
+  public execute(formerVNode: VNode<any>, vNode: VNode<any>) {
+    this.prepatchHook(formerVNode, vNode);
 
-    const prepatchHook = xOrMagic(data.hook).prepatch;
-
-    if (prepatchHook) {
-      prepatchHook(formerVNode, vNode);
-      data = vNode.data;
-    }
-
-    if (formerVNode === vNode) return;
-
-    let element = vNode.element = formerVNode.element;
-    let formerChildren = formerVNode.children;
-    let children = vNode.children;
-
-    if (!vNodesAreEqual(formerVNode, vNode)) {
-      const parentElement = parentNode(formerVNode.element);
-      element = this.elementFactory.make(vNode);
-      insertBefore(parentElement, element, formerVNode.element);
-      this.vNodeRemover.execute(parentElement, [formerVNode], 0, 0);
+    if (formerVNode === vNode)
       return;
-    }
+
+    if (!vNodesAreEqual(formerVNode, vNode))
+      return this.replaceVNode(formerVNode, vNode);
+
+    vNode.element = formerVNode.element;
 
     this.moduleCallbacks.update(formerVNode, vNode);
+    this.updateHook(formerVNode, vNode);
+    this.update(formerVNode, vNode);
+    this.postpatchHook(formerVNode, vNode);
+  }
 
-    const updateHook = xOrMagic(data.hook).update;
+  private prepatchHook(formerVNode: VNode<any>, vNode: VNode<any>) {
+    const prepatchHook = xOrMagic(vNode.data.hook).prepatch;
 
-    if (updateHook) {
+    if (prepatchHook)
+      prepatchHook(formerVNode, vNode);
+  }
+
+  private replaceVNode(formerVNode: VNode<any>, vNode: VNode<any>) {
+    // Here’s some funkiness going on with the types and names.
+    // @TODO: clean this up.
+    const parentElement: HTMLElement = parentNode(formerVNode.element);
+    const element: Node = this.elementFactory.make(vNode);
+    insertBefore(parentElement, element, formerVNode.element);
+    this.vNodeRemover.execute(parentElement, [formerVNode], 0, 0);
+  }
+
+  private updateHook(formerVNode: VNode<any>, vNode: VNode<any>) {
+    const updateHook = xOrMagic(vNode.data.hook).update;
+
+    if (updateHook)
       updateHook(formerVNode, vNode);
-      data = vNode.data;
-    }
+  }
 
-    if (!vNode.text) {
-      const formerChildCount = formerChildren.length;
-      const childCount = children.length;
+  private update(formerVNode: VNode<any>, vNode: VNode<any>) {
+    const text: string | null = vNode.text;
 
-      if (formerChildCount && childCount) {
-        if (formerChildren !== children)
-          vNodeUpdater.execute(element, formerChildren, children, this);
-      } else if (children.length) {
-        if (formerVNode.text) setTextContent(element, '');
-        this.vNodeAttacher.execute(element, null, children, 0, childCount - 1);
-      } else if (formerChildCount) {
-        this.vNodeRemover.execute(element, formerChildren, 0, formerChildCount - 1);
-      } else if (formerVNode.text) {
-        setTextContent(element, '');
-      }
-    } else if (formerVNode.text !== vNode.text) {
-      setTextContent(element, vNode.text);
-    }
+    if (!text)
+      return this.updateChildren(formerVNode, vNode);
 
-    const postpatchHook = xOrMagic(data.hook).postpatch;
+    if (formerVNode.text !== text)
+      setTextContent(vNode.element, text);
+  }
+
+  private updateChildren(formerVNode: VNode<any>, vNode: VNode<any>) {
+    const element = vNode.element;
+    const formerChildren: Array<VNode<any>> = formerVNode.children;
+    const children: Array<VNode<any>> = vNode.children;
+    const formerChildCount: number = formerChildren.length;
+    const childCount: number = children.length;
+    const formerVNodeHasChildren: boolean = !!formerChildCount;
+    const vNodeHasChildren: boolean = !!childCount;
+    const formerAndCurrentVNodeHaveChildren: boolean =
+      formerVNodeHasChildren && vNodeHasChildren;
+    const childrenShouldBeReplaced: boolean =
+      formerAndCurrentVNodeHaveChildren && formerChildren !== children;
+
+    if (childrenShouldBeReplaced)
+      return this.vNodeUpdater.execute(element, formerChildren, children, this);
+
+    const onlyVNodeHasChildren: boolean =
+      !formerVNodeHasChildren && vNodeHasChildren;
+    const formerVNodeHasText: boolean = !!formerVNode.text;
+
+    if (onlyVNodeHasChildren && formerVNodeHasText)
+      setTextContent(element, ``);
+
+    if (onlyVNodeHasChildren)
+      return this.vNodeAttacher
+        .execute(element, null, children, 0, childCount - 1);
+
+    const onlyFormerVNodeHasChildren: boolean =
+      formerVNodeHasChildren && !vNodeHasChildren;
+
+    if (onlyFormerVNodeHasChildren)
+      return this.vNodeRemover
+        .execute(element, formerChildren, 0, formerChildCount - 1);
+
+    if (!formerAndCurrentVNodeHaveChildren && formerVNodeHasText)
+      setTextContent(element, ``);
+  }
+
+  private postpatchHook(formerVNode: VNode<any>, vNode: VNode<any>) {
+    const postpatchHook = xOrMagic(vNode.data.hook).postpatch;
 
     if (postpatchHook)
       postpatchHook(formerVNode, vNode);

@@ -1,0 +1,26 @@
+{
+  "name": "dbmon-test",
+  "version": "0.0.0",
+  "description": "DBMON test for virtual-dom implementation",
+  "main": "test.js",
+  "scripts": {
+    "clean": "rimraf .tmp && rimraf test.js",
+    "build": "tsc --target es2015 --module es2015 ./main.ts --outDir ./.tmp --moduleResolution node --lib dom,es5,es2015",
+    "bundle": "rollup -c",
+    "serve": "http-server ./",
+    "start": "npm run clean && npm run build && npm run bundle && npm run serve",
+    "test": "npm start"
+  },
+  "author": "Tylor Steinberger",
+  "license": "MIT",
+  "devDependencies": {
+    "@most/prelude": "^1.4.1",
+    "http-server": "^0.9.0",
+    "most": "^1.1.0",
+    "most-subject": "^5.2.0",
+    "rimraf": "^2.5.4",
+    "rollup": "^0.36.3",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "typescript": "^2.2.0-dev.20161115"
+  }
+}

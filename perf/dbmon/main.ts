@@ -1,68 +1,50 @@
 /* global ENV, Monitoring */
-declare const ENV: any
-declare const Monitoring: any
+declare const ENV: any;
+declare const Monitoring: any;
 
-import { Subject, subject } from 'most-subject'
-import Cycle from '@cycle/most-run'
-import {makeDOMDriver, h} from '../../src'
+import { map, curry2 } from '@most/prelude';
 
-function map<T, R> (arr: Array<T>, fn: (t: T, i: number) => R) {
-  const l = arr.length
-  const mappedArr = Array(l)
-  for (let i = 0; i < l; ++i) {
-    mappedArr[i] = fn(arr[i], i)
-  }
-  return mappedArr
-}
+import { h, VNode } from '../../src';
+import { init } from '../../src/virtual-dom/patch';
 
-function dbMap (q: any) {
-  return h('td.' + q.elapsedClassName, [
-    h('span.foo', [q.formatElapsed]),
-    h('div.popover.left', [
-      h('div.popover-content', [
-        q.query
+const patch = init([]);
+
+const dbMap = function dbMap(q: any) {
+  return h('td.' + q.elapsedClassName, {}, [
+    h('span.foo', {}, [q.formatElapsed]),
+    h('div.popover.left', {}, [
+      h('div.popover-content', {}, [
+          q.query,
       ]),
-      h('div.arrow')
-    ])
-  ])
-}
+      h('div.arrow', {}, []),
+    ]),
+  ]);
+};
 
-function databasesMap (db: any) {
-  return h('tr', [
-    h('td.dbname', [db.dbname]),
-    h('td.query-count', [
-      h('span.' + db.lastSample.countClassName, [
-        db.lastSample.nbQueries
-      ])
-    ])
-  ].concat(map(db.lastSample.topFiveQueries, dbMap)))
-}
+const databasesMap = function databasesMap(db: any) {
+  const lastSample = db.lastSample;
+  return h('tr', {}, [
+    h('td.dbname', {}, [db.dbname]),
+    h('td.query-count', {}, [
+      h('span.' + lastSample.countClassName, {}, [
+        lastSample.nbQueries,
+      ]),
+    ]),
+  ].concat(map(dbMap, lastSample.topFiveQueries)));
+};
 
-function mainMap (databases: any) {
-  return h('div', {static: true}, [
+function view(data: Array<any>) {
+  return h('div', {}, [
     h('table.table.table-striped.latest-data', {}, [
-      h('tbody', map(databases, databasesMap))
-    ])
-  ])
+      h('tbody', {}, map(databasesMap, data)),
+    ]),
+  ]);
 }
 
-function main (sources: any) {
-  return {
-    DOM: sources.databases.map(mainMap)
-  }
-}
+function render(formerVNode: Element | VNode<any>) {
+  const vNode = patch(formerVNode, view(ENV.generateData().toArray()));
+  Monitoring.renderRate.ping();
+  setTimeout(() => render(vNode), ENV.timeout);
+};
 
-function load (stream: Subject<any>) {
-  stream.next(ENV.generateData().toArray())
-  Monitoring.renderRate.ping()
-  setTimeout(function () { load(stream) }, ENV.timeout)
-}
-
-Cycle.run(main, {
-  DOM: makeDOMDriver('#test-container'),
-  databases: function () {
-    const stream = subject()
-    load(stream)
-    return stream
-  }
-})
+render(document.querySelector('#test-container') as Element);

@@ -20,7 +20,7 @@ let formerVNode: any = document.createElement('div');
 
 const iterations = 50;
 
-console.log(`Running ${iterations} iterations of patch()`)
+console.log(`Running ${iterations} iterations of patch()`);
 
 const start = Date.now();
 for (let i = 0; i < iterations; ++i) {

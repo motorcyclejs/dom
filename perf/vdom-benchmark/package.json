@@ -1,0 +1,27 @@
+{
+  "name": "vdom-benchmark",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "rimraf .tmp && rimraf test.js",
+    "build": "tsc --target es2015 --module es2015 ./main.ts --outDir ./.tmp --moduleResolution node --lib dom,es5,es2015",
+    "bundle": "rollup -c",
+    "serve": "http-server ./",
+    "start": "npm run clean && npm run build && npm run bundle && npm run serve",
+    "test": "npm start"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "vdom-benchmark-base": "^0.2.4"
+  },
+  "devDependencies": {
+    "http-server": "^0.9.0",
+    "rimraf": "^2.5.4",
+    "rollup": "^0.36.3",
+    "rollup-plugin-commonjs": "^5.0.5",
+    "rollup-plugin-node-resolve": "^2.0.0",
+    "typescript": "^2.2.0-dev.20161115"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "name": "patch-perf-test",
+  "version": "0.0.0",
+  "description": "Tests the patch() operation",
+  "main": "index.js",
+  "scripts": {
+    "test": "ts-node ./index.ts",
+    "start": "npm test"
+  },
+  "author": "Tylor Steinberger",
+  "license": "MIT",
+  "devDependencies": {
+    "jsdom": "^9.8.3",
+    "jsdom-global": "^2.1.0",
+    "ts-node": "^1.7.0",
+    "typescript": "^2.0.10"
+  }
+}

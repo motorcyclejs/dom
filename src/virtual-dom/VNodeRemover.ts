@@ -16,34 +16,33 @@ export class VNodeRemover {
     startIndex: number,
     endIndex: number)
   {
-    for (; startIndex <= endIndex; ++startIndex) {
+    while (startIndex <= endIndex) {
       let child = vNodes[startIndex];
+      ++startIndex;
 
       if (!child) continue;
 
       if (child.text !== null) {
         api.removeChild(parentElement, child.element);
-        continue;
+      } else {
+        this.invokeDestroyHook(child);
+
+        const listenerCount: number =
+          this.moduleCallbacks.listenerCount();
+
+        const remove: () => void =
+          createRemovalCallback(child.element, listenerCount);
+
+        this.moduleCallbacks.remove(child, remove);
+
+        const removeHook = xOrMagic(child.data.hook).remove;
+
+        if (removeHook) {
+          removeHook(child, remove);
+        } else {
+          remove();
+        }
       }
-
-      this.invokeDestroyHook(child);
-
-      const listenerCount: number =
-        this.moduleCallbacks.listenerCount();
-
-      const remove: () => void =
-        createRemovalCallback(child.element, listenerCount);
-
-      this.moduleCallbacks.remove(child, remove);
-
-      const removeHook = xOrMagic(child.data.hook).remove;
-
-      if (removeHook) {
-        removeHook(child, remove);
-        continue;
-      }
-
-      remove();
     }
   }
 

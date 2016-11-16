@@ -1,6 +1,9 @@
 import 'jsdom-global/register';
 
 import * as fs from 'fs';
+import * as path from 'path';
+
+const results = path.join(__dirname, 'results.csv');
 
 import { h } from '../../src';
 import { init } from '../../src/virtual-dom/patch';
@@ -34,7 +37,7 @@ const data = `\n"${date.getDay()}-${date.getMonth()}-${date.getFullYear()}, ` +
   `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}", ` +
   `"${totalTime}", "${iterations}"`;
 
-fs.appendFile('results.csv', data, (err) => {
+fs.appendFile(results, data, (err) => {
   if (err) throw err;
 
   console.log(`Appended results to results.csv`);

@@ -1,7 +1,7 @@
 import * as assert from 'assert';
 import * as Motorcycle from '@motorcycle/core';
 
-import { h4, h3, h2, div, h, mockDomSource, DomSource } from '../src/index';
+import { h4, h3, h2, div, h, mockDomSource, DomSource, VNode } from '../../src';
 import * as most from 'most';
 
 describe('mockDomSource', function () {
@@ -213,12 +213,12 @@ describe('isolation on MockedDOMSource', function () {
             h4('.bar', {}, ['Wrong']),
           ]),
         ),
-        'ISOLATION'
+        'ISOLATION',
       )
-        .map(view => div('.top-most', {}, [
+        .map((view: VNode<HTMLDivElement>) => div('.top-most', {}, [
           view,
-          h2('.bar', {}, ['Correct'])
-        ]))
+          h2('.bar', {}, ['Correct']),
+        ]));
 
       return {
         DOM,

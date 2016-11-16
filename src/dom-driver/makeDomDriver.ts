@@ -7,7 +7,11 @@ export function makeDomDriver(
   driverOptions: DomDriverOptions): DriverFn
 {
   return function DomDriver(view$: Stream<VNode<any>>) {
+    Function.prototype(containingElement);
+    Function.prototype(driverOptions);
+    Function.prototype(view$);
 
+    return {};
   };
 }
 

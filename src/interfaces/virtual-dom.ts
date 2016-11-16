@@ -1,5 +1,3 @@
-// TODO: add all types of events DOM.select().events() could have
-
 export interface VNode<T extends Node> {
   selector: string;
   data: VNodeData;
@@ -7,6 +5,7 @@ export interface VNode<T extends Node> {
   key: string | number | null;
   element: T | null;
   text: string | null;
+  isolate: string | null;
 }
 
 export type VNodes = Array<VNode<any>>;

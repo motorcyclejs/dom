@@ -9,7 +9,7 @@ import { init } from '../../src/virtual-dom/patch';
 
 const patch = init([]);
 
-const dbMap = function dbMap(q: any) {
+function dbMap(q: any) {
   return h('td.' + q.elapsedClassName, {}, [
     h('span.foo', {}, [q.formatElapsed]),
     h('div.popover.left', {}, [
@@ -21,7 +21,7 @@ const dbMap = function dbMap(q: any) {
   ]);
 };
 
-const databasesMap = function databasesMap(db: any) {
+function databasesMap(db: any) {
   const lastSample = db.lastSample;
   return h('tr', {}, [
     h('td.dbname', {}, [db.dbname]),
@@ -42,9 +42,8 @@ function view(data: Array<any>) {
 }
 
 function render(formerVNode: Element | VNode<any>) {
-  const vNode = patch(formerVNode, view(ENV.generateData().toArray()));
+  setTimeout(render, ENV.timeout, patch(formerVNode, view(ENV.generateData().toArray())));
   Monitoring.renderRate.ping();
-  setTimeout(() => render(vNode), ENV.timeout);
 };
 
 render(document.querySelector('#test-container') as Element);

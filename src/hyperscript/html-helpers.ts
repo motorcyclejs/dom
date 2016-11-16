@@ -2,7 +2,7 @@ import { VNode, VNodeData, VNodeChildren } from '../interfaces';
 import { HtmlTagNames } from './types';
 import { h } from './h';
 
-interface HyperscriptHelperFn<T extends Element> {
+export interface HyperscriptHelperFn<T extends Element> {
   (selector: string, data: VNodeData, children: Array<VNode<any> | string | null>): VNode<T>;
   (data: VNodeData, children: Array<VNode<any> | string | null>): VNode<T>;
 }

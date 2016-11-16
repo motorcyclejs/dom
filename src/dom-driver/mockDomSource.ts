@@ -1,6 +1,6 @@
 import { Stream, empty } from 'most';
 import { findIndex } from '@most/prelude';
-import { DomSource, VNode } from '../interfaces';
+import { DomSource, VNode, StandardEvents } from '../interfaces';
 
 export function mockDomSource(config: MockConfig): DomSource {
   return new MockDomSource(config);
@@ -23,11 +23,15 @@ class MockDomSource implements DomSource {
     return (this.config as any).elements || empty();
   }
 
-  public events(eventType: string): Stream<any> {
+  public events(eventType: StandardEvents): Stream<any> {
+    return this.customEvents(eventType);
+  }
+
+  public customEvents(customEventType: string): Stream<any> {
     const config: MockConfig = this.config;
 
     const keys: Array<string> = Object.keys(config);
-    const index: number = findIndex(eventType, keys);
+    const index: number = findIndex(customEventType, keys);
 
     return config[keys[index]] as Stream<any> || empty();
   }

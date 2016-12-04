@@ -1,4 +1,4 @@
-import { VNode } from './interfaces';
+import { VNode } from './types';
 
 export function isDef (x: any): boolean {
   return typeof x !== 'undefined';

@@ -1,4 +1,4 @@
-import { VNode, Module } from '../interfaces';
+import { VNode, Module } from '../types';
 
 function updateDataset(oldVnode: VNode, vnode: VNode) {
   let elm = vnode.elm as HTMLElement;

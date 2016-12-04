@@ -1,4 +1,4 @@
-import { VNode, VNodeData, VirtualNode } from '../interfaces';
+import { VNode, VNodeData, VirtualNode } from '../types';
 import { MotorcycleVNode } from '../MotorcycleVNode';
 import is from '../is';
 

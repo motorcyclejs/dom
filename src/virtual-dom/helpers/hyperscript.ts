@@ -1,4 +1,4 @@
-import { VNodeData, VNodeChildren, VirtualNode } from '../interfaces';
+import { VNodeData, VNodeChildren, VirtualNode } from '../types';
 import { HtmlTagNames } from './types';
 import { h } from './h';
 

@@ -1,4 +1,4 @@
-import { VNode, Module } from '../interfaces';
+import { VNode, Module } from '../types';
 
 interface HeroVNode extends VNode {
   isTextNode: boolean;

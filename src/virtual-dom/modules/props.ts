@@ -1,4 +1,4 @@
-import { VNode, Module } from '../interfaces';
+import { VNode, Module } from '../types';
 
 function updateProps(oldVnode: VNode, vnode: VNode) {
   if (!oldVnode.data && !vnode.data) return;

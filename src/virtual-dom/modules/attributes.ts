@@ -1,4 +1,4 @@
-import { VNode, Module } from '../interfaces';
+import { VNode, Module } from '../types';
 
 const booleanAttrs = [
   'allowfullscreen', 'async', 'autofocus', 'autoplay', 'checked', 'compact', 'controls', 'declare',

@@ -1,4 +1,4 @@
-import { VNode, Module } from '../interfaces';
+import { VNode, Module } from '../types';
 
 function updateClass(oldVnode: VNode, vnode: VNode) {
   let cur: any;

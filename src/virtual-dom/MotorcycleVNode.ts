@@ -1,4 +1,4 @@
-import { VNode, VNodeData } from './interfaces';
+import { VNode, VNodeData } from './types';
 
 export class MotorcycleVNode implements VNode {
   constructor(

@@ -1,4 +1,4 @@
-import { Module, SnabbdomAPI, VNode, VNodeData } from './interfaces';
+import { Module, SnabbdomAPI, VNode, VNodeData } from './types';
 import { MotorcycleVNode } from './MotorcycleVNode';
 import is from './is';
 import domApi from './htmldomapi';

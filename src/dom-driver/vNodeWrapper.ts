@@ -13,10 +13,6 @@ export function vNodeWrapper(rootElement: HTMLElement): (vNode: VNode) => VNode 
 
     if (isVNodeAndRootElementIdentical) return vNode;
 
-    const elementId = id ? `#${id}` : ``;
-    const elementClassName = className
-      ? `.${className.split(` `).join(`.`)}` : ``;
-
     return new MotorcycleVNode(
       tagName.toLowerCase(),
       className,

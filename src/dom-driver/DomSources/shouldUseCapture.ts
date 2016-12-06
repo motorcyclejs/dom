@@ -1,5 +1,3 @@
-import { EventsFnOptions } from '../../types';
-
 const eventTypesThatDontBubble = [
   `blur`,
   `canplay`,

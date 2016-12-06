@@ -1,5 +1,5 @@
 const noop = () => void 0;
-const always = x => () => x;
+const always = (x: any) => () => x;
 
 export const elementMap = new Map<string, any>([
   ['document', documentElement()],

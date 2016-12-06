@@ -2,7 +2,6 @@ import { Stream } from 'most';
 import { copy } from '@most/prelude';
 import { domEvent } from '@most/dom-event';
 import { EventDelegator } from '../EventDelegator';
-import { IsolateModule } from '../../modules/IsolateModule';
 import { DomSource, EventsFnOptions, StandardEvents, VNode } from '../../types';
 import { shouldUseCapture } from './shouldUseCapture';
 import { ElementDomSource } from './ElementDomSource';

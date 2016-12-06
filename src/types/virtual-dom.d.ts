@@ -62,7 +62,6 @@ export interface VNodeData {
   attachData?: any; // for attachTo()
   // Cycle.js only
   isolate?: string;
-  static?: boolean;
 }
 
 export interface VirtualNode<T extends Node> {

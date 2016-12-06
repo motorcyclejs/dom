@@ -1,4 +1,4 @@
-import { Stream, empty, multicast, filter } from 'most';
+import { Stream } from 'most';
 import { domEvent } from '@most/dom-event';
 import { IsolateModule } from '../modules/IsolateModule';
 

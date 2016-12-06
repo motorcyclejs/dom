@@ -1,8 +1,6 @@
-import { Stream, just } from 'most';
-import { copy } from '@most/prelude';
+import { Stream } from 'most';
 import { domEvent } from '@most/dom-event';
 import { EventDelegator } from '../EventDelegator';
-import { IsolateModule } from '../../modules/IsolateModule';
 import { DomSource, EventsFnOptions, StandardEvents, VNode } from '../../types';
 import { shouldUseCapture } from './shouldUseCapture';
 import { MotorcycleDomSource } from './MotorcycleDomSource';
@@ -60,8 +58,6 @@ export class ElementDomSource implements DomSource {
   public events<T extends Event>(eventType: StandardEvents, options?: EventsFnOptions): Stream<T>;
   public events<T extends Event>(eventType: string, options?: EventsFnOptions): Stream<T>;
   public events(eventType: StandardEvents, options: EventsFnOptions = {}) {
-    const namespace = this._namespace;
-
     const useCapture = shouldUseCapture(eventType, options.useCapture || false);
 
     return this._rootElement$.constant(this._element)

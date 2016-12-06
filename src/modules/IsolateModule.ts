@@ -69,7 +69,3 @@ function noop() {
 function scopeFromVNode(vNode: VNode) {
   return vNode.data && vNode.data.isolate || ``;
 }
-
-function slice<T>(arrayLike: ArrayLike<T>): Array<T> {
-  return Array.prototype.slice.call(arrayLike);
-}

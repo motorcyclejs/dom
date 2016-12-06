@@ -1,4 +1,6 @@
-import { VNode } from './types';
+import { VNode } from '../types';
+import { tagName } from './htmldomapi';
+import { MotorcycleVNode } from './MotorcycleVNode';
 
 export function isDef (x: any): boolean {
   return typeof x !== 'undefined';
@@ -20,4 +22,17 @@ export function createKeyToOldIdx(children: VNode[], beginIdx: number, endIdx: n
     if (isDef(key)) map[key] = i;
   }
   return map;
+}
+
+export function emptyNodeAt(elm: HTMLElement): VNode {
+  return new MotorcycleVNode(
+    tagName(elm).toLowerCase(),
+    elm.className,
+    elm.id,
+    {},
+    elm.children ? Array.prototype.slice.call(elm.children).map(emptyNodeAt) : [],
+    undefined,
+    elm,
+    undefined,
+  );
 }

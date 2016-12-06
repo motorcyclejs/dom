@@ -1,14 +1,17 @@
-import { Module, SnabbdomAPI, VNode, VNodeData } from './types';
+import { Module, SnabbdomAPI, VNode, VNodeData } from '../types';
 import { MotorcycleVNode } from './MotorcycleVNode';
 import is from './is';
 import domApi from './htmldomapi';
-import { isDef, isUndef, sameVNode, createKeyToOldIdx } from './util';
+import { isDef, isUndef, sameVNode, createKeyToOldIdx, emptyNodeAt } from './util';
 
 const hooks: string[] = ['create', 'update', 'remove', 'destroy', 'pre', 'post'];
 
 const emptyVnode = new MotorcycleVNode(void 0, void 0, void 0, {}, [], void 0, void 0, void 0);
 
-export function init(modules: Module[], api?: SnabbdomAPI<any, any, any>): (previous: VNode | Node, current: VNode) => VNode {
+export function init(
+  modules: Module[],
+  api?: SnabbdomAPI<any, any, any>): (previous: VNode | HTMLElement, current: VNode) => VNode
+{
   let i: number;
   let j: number;
   let cbs: any = {};
@@ -19,21 +22,8 @@ export function init(modules: Module[], api?: SnabbdomAPI<any, any, any>): (prev
     cbs[hooks[i]] = [];
     for (j = 0; j < modules.length; ++j) {
       const hook: any = (modules[j] as any)[hooks[i]];
-      if (isDef(hook)) cbs[hooks[i]].push(hook);
+      if (isDef(hook)) cbs[hooks[i]].push(hook.bind(modules[j]));
     }
-  }
-
-  function emptyNodeAt(elm: HTMLElement) {
-    return new MotorcycleVNode(
-      (api as SnabbdomAPI<Element, Text, Node>).tagName(elm).toLowerCase(),
-      elm.className,
-      elm.id,
-      {},
-      elm.children ? Array.prototype.slice.call(elm.children).map(emptyNodeAt) : [],
-      undefined,
-      elm,
-      undefined,
-    );
   }
 
   function createRmCb(childElm: Element, listeners: number) {

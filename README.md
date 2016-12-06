@@ -9,6 +9,8 @@
 npm install --save @motorcycle/dom
 ```
 
+Needs Polyfills for `Map` and `Array.from`
+
 ## API
 
 <!-- Describe your API here -->

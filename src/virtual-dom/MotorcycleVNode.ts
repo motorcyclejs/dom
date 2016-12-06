@@ -1,4 +1,4 @@
-import { VNode, VNodeData } from './types';
+import { VNode, VNodeData } from '../types';
 
 export class MotorcycleVNode implements VNode {
   constructor(
@@ -8,7 +8,7 @@ export class MotorcycleVNode implements VNode {
     public data: VNodeData | undefined,
     public children: Array<VNode | string | null> | undefined,
     public text: string | undefined,
-    public elm: HTMLElement | Text | undefined,
+    public elm: Node | undefined,
     public key: string | number | undefined) {
   }
 

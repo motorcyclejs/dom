@@ -1,4 +1,4 @@
-import { VNode, VNodeData, VirtualNode } from '../types';
+import { VNode, VNodeData, VirtualNode } from '../../types';
 import { MotorcycleVNode } from '../MotorcycleVNode';
 import is from '../is';
 
@@ -49,6 +49,7 @@ export const h: HyperscriptFn = function (selector: string, b?: any, c?: any): V
 
   if (is.array(children)) {
     children = children.filter(Boolean);
+
     for (i = 0; i < children.length; ++i) {
       if (is.primitive(children[i])) {
         children[i] = MotorcycleVNode.createTextVNode(String(children[i]) as string);
@@ -58,9 +59,8 @@ export const h: HyperscriptFn = function (selector: string, b?: any, c?: any): V
 
   const { tagName, id, className } = parseSelector(selector);
 
-  if (tagName === 'svg') {
+  if (tagName === 'svg')
     addNS(data, children as Array<VNode | string | null>, tagName);
-  }
 
   return new MotorcycleVNode(tagName, className, id, data || {}, children, text, undefined, data && data.key);
 };

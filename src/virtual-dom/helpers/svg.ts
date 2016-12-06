@@ -1,5 +1,4 @@
-import { VNodeData, VNodeChildren, VirtualNode } from '../types';
-import { SvgTagNames } from './types';
+import { VNodeData, VNodeChildren, VirtualNode, SvgTagNames } from '../../types';
 import { h } from './h';
 
 export interface SvgHyperscriptHelperFn<T extends Element> {

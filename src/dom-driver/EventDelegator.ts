@@ -101,5 +101,9 @@ export interface DomEvent extends Event {
 }
 
 function generateScope(namespace: Array<string>, useCapture: boolean) {
-  return namespace.join('') + '~' + useCapture;
+  return namespace.filter(findScope).join('~') + '~' + useCapture;
+}
+
+function findScope(selector: string): boolean {
+  return selector.startsWith(SCOPE_PREFIX);
 }

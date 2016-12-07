@@ -162,35 +162,6 @@ describe('MotorcycleDomSource', () => {
       });
     });
 
-    it('only emits events to correct listeners', () => {
-      const buttonElement = h('button', { className: 'btn' }) as HTMLButtonElement;
-      const divElement = h('div', [buttonElement]) as HTMLDivElement;
-
-      const domSource = new MotorcycleDomSource(just(divElement), []);
-
-      let buttonClicks = 0;
-      let divClicks = 0;
-
-      domSource.select('.btn').events('click').observe(() => {
-        ++buttonClicks;
-      });
-
-      domSource.select('div').events('click').observe(() => {
-        ++divClicks;
-      });
-
-      return Promise.resolve(void 0)
-        .then(() => {
-          (buttonElement as any).click();
-          (buttonElement as any).click();
-          (divElement as any).click();
-        })
-        .then(() => {
-          assert.strictEqual(buttonClicks, 2, 'Expected button to be clicked 2 times');
-          assert.strictEqual(divClicks, 1, 'Expected div to be clicked 1 time');
-        });
-    });
-
     it('captures events using id', (done) => {
       const element = h('div', { id: 'myElement' }, [
         h('button', { id: 'btn' }),
@@ -319,7 +290,7 @@ describe('MotorcycleDomSource', () => {
     });
   });
 
-  describe.only('isolation', () => {
+  describe('isolation', () => {
     it('prevents parent from DOM.selecting() inside the isolation', function (done) {
       const isolatedButton = h('button.btn', {}, []) as HTMLButtonElement;
       const isolatedButtonVNode = button('.btn');

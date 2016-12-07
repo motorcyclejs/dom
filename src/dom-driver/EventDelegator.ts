@@ -20,7 +20,7 @@ export class EventDelegator {
     eventType: EventType,
     useCapture: boolean,
   ): Stream<Event> {
-    const scope = generateScope(namespace, useCapture);
+    const scope = generateScope(namespace) + '~' + useCapture;
 
     const eventMap = this.eventMap;
 
@@ -32,7 +32,7 @@ export class EventDelegator {
 
     return scopeMap.has(scope)
       ? scopeMap.get(scope) as Stream<Event>
-      : addEventStream(scopeMap, namespace, element, eventType, useCapture);
+      : addEventStream(scopeMap, namespace, element, eventType, useCapture, this.isolateModule);
   }
 }
 
@@ -50,13 +50,15 @@ function addEventStream(
   element: Element,
   eventType: EventType,
   useCapture: boolean,
+  isolateModule: IsolateModule,
 ): Stream<DomEvent> {
   const selector = namespace.filter(findSelector).join(' ');
-  const scope = generateScope(namespace, useCapture);
+  const scope = generateScope(namespace);
 
   const eventStream: Stream<DomEvent> =
     (domEvent(eventType, element, useCapture) as Stream<DomEvent>)
       .filter(ensureMatches(selector))
+      .filter(isInScope(scope, isolateModule))
       .multicast();
 
   scopeMap.set(scope, eventStream);
@@ -94,12 +96,29 @@ function mutateEvent(ev: Event) {
   }
 }
 
+function isInScope(scope: string, isolateModule: IsolateModule) {
+  return function (ev: Event) {
+    let element: HTMLElement = ev.target as HTMLElement;
+    for (; element; element = element.parentElement as HTMLElement) {
+      const matchedScope = isolateModule.findScope(element);
+
+      if (matchedScope && matchedScope !== scope) return false;
+
+      if (matchedScope) return true;
+    }
+
+    return true;
+  };
+}
+
 export interface DomEvent extends Event {
   ownerTarget: Element;
 }
 
-function generateScope(namespace: Array<string>, useCapture: boolean) {
-  return namespace.filter(findScope).join('~') + '~' + useCapture;
+function generateScope(namespace: Array<string>) {
+  const scopes = namespace.filter(findScope);
+
+  return scopes[scopes.length - 1];
 }
 
 function findScope(selector: string): boolean {

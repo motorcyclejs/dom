@@ -7,6 +7,7 @@ import { shouldUseCapture } from './shouldUseCapture';
 import { ElementDomSource } from './ElementDomSource';
 import { elementMap } from './elementMap';
 import { SCOPE_PREFIX } from './common';
+import { isInScope } from '../isInScope';
 
 export class MotorcycleDomSource implements DomSource {
   protected _rootElement$: Stream<HTMLElement>;
@@ -50,11 +51,20 @@ export class MotorcycleDomSource implements DomSource {
   }
 
   public elements(): Stream<Element[]> {
-    if (this._namespace.length === 0)
+    const namespace = this._namespace;
+    const delegator = this._delegator;
+
+    if (namespace.length === 0)
       return this._rootElement$.map(Array);
 
     return this._rootElement$.map(element => {
-      return copy(element.querySelectorAll(this._namespace.join(' ')) as any as Array<any>);
+      const selectors = namespace.filter(x => !x.startsWith(SCOPE_PREFIX)).join(' ');
+      const scope = generateScope(namespace);
+
+      const matchedNodes = element.querySelectorAll(selectors);
+      const matchedNodesArray = copy(matchedNodes as any as Array<any>);
+
+      return matchedNodesArray.filter(isInScope(scope, delegator.isolateModule));
     });
   }
 
@@ -84,7 +94,20 @@ export class MotorcycleDomSource implements DomSource {
     return sink.tap(vNode => {
       if (!vNode.data) vNode.data = {};
 
-      vNode.data.isolate = SCOPE_PREFIX + scope;
+      if (!vNode.data.isolate)
+        vNode.data.isolate = SCOPE_PREFIX + scope;
+
+      if (!vNode.key) vNode.key = SCOPE_PREFIX + scope;
     });
   }
+}
+
+function generateScope(namespace: Array<string>) {
+  const scopes = namespace.filter(findScope);
+
+  return scopes[scopes.length - 1];
+}
+
+function findScope(selector: string): boolean {
+  return selector.startsWith(SCOPE_PREFIX);
 }

@@ -1,6 +1,7 @@
 import { Stream } from 'most';
 import { domEvent } from '@most/dom-event';
 import { IsolateModule } from '../modules/IsolateModule';
+import { isInScope } from './isInScope';
 
 export type EventType = string;
 export type Scope = string;
@@ -12,7 +13,7 @@ const SCOPE_PREFIX = `$$MOTORCYCLEDOM$$-`;
 export class EventDelegator {
   private eventMap: EventMap= new Map();
 
-  constructor(private isolateModule = new IsolateModule()) {}
+  constructor(public isolateModule = new IsolateModule()) {}
 
   public addEventListener(
     namespace: Array<string>,
@@ -55,10 +56,12 @@ function addEventStream(
   const selector = namespace.filter(findSelector).join(' ');
   const scope = generateScope(namespace);
 
+  const checkElementIsInScope = isInScope(scope, isolateModule);
+
   const eventStream: Stream<DomEvent> =
     (domEvent(eventType, element, useCapture) as Stream<DomEvent>)
-      .filter(ensureMatches(selector))
-      .filter(isInScope(scope, isolateModule))
+      .filter(ensureMatches(selector, element))
+      .filter(ev => checkElementIsInScope(ev.target as HTMLElement))
       .multicast();
 
   scopeMap.set(scope + '~' + useCapture, eventStream);
@@ -70,9 +73,9 @@ function findSelector(selector: string) {
   return !selector.startsWith(SCOPE_PREFIX);
 }
 
-function ensureMatches(selector: string) {
+function ensureMatches(selector: string, element: Element) {
   return function eventTargetMatches(ev: Event) {
-    if (!selector || (ev.target as HTMLElement).matches(selector)) {
+    if (isMatch(selector, element, ev.target as Element)) {
       mutateEvent(ev);
       (ev as any).ownerTarget = ev.target;
 
@@ -81,6 +84,12 @@ function ensureMatches(selector: string) {
 
     return false;
   };
+}
+
+function isMatch(selector: string, rootElement: Element, target: Element) {
+  if (!selector || target.matches(selector)) return true;
+
+  return false;
 }
 
 function mutateEvent(ev: Event) {
@@ -94,21 +103,6 @@ function mutateEvent(ev: Event) {
   } catch (e) {
     console.log(`Please use event.ownerTarget as a replacement for event.currentTarget`);
   }
-}
-
-function isInScope(scope: string, isolateModule: IsolateModule) {
-  return function (ev: Event) {
-    let element: HTMLElement = ev.target as HTMLElement;
-    for (; element; element = element.parentElement as HTMLElement) {
-      const matchedScope = isolateModule.findScope(element);
-
-      if (matchedScope && matchedScope !== scope) return false;
-
-      if (matchedScope) return true;
-    }
-
-    return true;
-  };
 }
 
 export interface DomEvent extends Event {

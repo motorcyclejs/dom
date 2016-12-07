@@ -1,18 +1,40 @@
 import { VNodeData, VNodeChildren, VirtualNode, SvgTagNames } from '../../types';
 import { h } from './h';
 
-export interface SvgHyperscriptHelperFn<T extends Element> {
-  (selector: string, data: VNodeData, children: VNodeChildren): VirtualNode<T>;
+export interface SvgHyperscriptHelperFn<T extends SVGElement> {
+  (): VirtualNode<T>;
+  (classNameOrId: string, data: VNodeData, children: VNodeChildren): VirtualNode<T>;
+  (classNameOrId: string, data: VNodeData): VirtualNode<T>;
+  (classNameOrId: string, children: VNodeChildren): VirtualNode<T>;
+  (classNameOrId: string): VirtualNode<T>;
+  (data: VNodeData): VirtualNode<T>;
   (data: VNodeData, children: VNodeChildren): VirtualNode<T>;
+  (children: VNodeChildren): VirtualNode<T>;
 }
 
-function hh <T extends SVGElement> (tagName: SvgTagNames): SvgHyperscriptHelperFn<T> {
-  return function helper (selector: string, data: VNodeData, children: VNodeChildren) {
-    return isSelector(selector)
-      ? h<T>(tagName + selector, data, children)
-      : h<T>(tagName, selector, data as VNodeChildren);
-  } as SvgHyperscriptHelperFn<T>;
-}
+function hh <T extends SVGElement>(tagName: string): SvgHyperscriptHelperFn<T> {
+  return function (): VirtualNode<T> {
+    const selector = arguments[0];
+    const data = arguments[1];
+    const children = arguments[2];
+
+    if (isSelector(selector))
+      if (Array.isArray(data))
+        return h(tagName + selector, {}, data);
+      else if (typeof data === 'object')
+        return h(tagName + selector, data, children);
+      else
+        return h(tagName + selector, {});
+
+    if (Array.isArray(selector))
+      return h(tagName, {}, selector);
+    else if (typeof selector === 'object')
+      return h(tagName, selector, data);
+    else
+      return h(tagName, {});
+  };
+};
+
 
 function isValidString (param: any): boolean {
   return typeof param === 'string' && param.length > 0;

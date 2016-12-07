@@ -24,14 +24,14 @@ export function hh <T extends Node>(tagName: string): HyperscriptHelperFn<T> {
       else if (typeof data === 'object')
         return h(tagName + selector, data, children);
       else
-        return h(tagName + selector, {});
+        return h(tagName + selector, data || {});
 
     if (Array.isArray(selector))
       return h(tagName, {}, selector);
     else if (typeof selector === 'object')
       return h(tagName, selector, data);
     else
-      return h(tagName, {});
+      return h(tagName, selector || {});
   };
 };
 
@@ -106,6 +106,7 @@ export const header = hh('header');
 export const hgroup = hh('hgroup');
 export const hr = hh<HTMLHRElement>('hr');
 export const html = hh<HTMLHtmlElement>('html');
+export const input = hh<HTMLInputElement>('input');
 export const ins = hh('ins');
 export const isindex = hh('isindex');
 export const kbd = hh('kbd');

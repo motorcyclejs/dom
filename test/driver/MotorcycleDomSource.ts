@@ -3,6 +3,8 @@ import { empty, just } from 'most';
 import { DomSource, div, button } from '../../src';
 import * as h from 'hyperscript';
 import { MotorcycleDomSource } from '../../src/dom-driver/DomSources';
+import { EventDelegator } from '../../src/dom-driver/EventDelegator';
+import { IsolateModule } from '../../src/modules/IsolateModule';
 
 describe('MotorcycleDomSource', () => {
   it('implements DomSource interface', () => {
@@ -317,7 +319,57 @@ describe('MotorcycleDomSource', () => {
     });
   });
 
-  describe('isolation', () => {
+  describe.only('isolation', () => {
+    it('prevents parent from DOM.selecting() inside the isolation', function (done) {
+      const isolatedButton = h('button.btn', {}, []) as HTMLButtonElement;
+      const isolatedButtonVNode = button('.btn');
+      isolatedButtonVNode.elm = isolatedButton;
 
+      const isolatedDiv = h('div', {}, [isolatedButton]) as HTMLDivElement;
+      const isolatedDivVNode = div({ isolate: '$$MOTORCYCLEDOM$$-foo' }, [isolatedButtonVNode]);
+      isolatedDivVNode.elm = isolatedDiv;
+
+      const buttonElement = h('button.btn', {}, []) as HTMLButtonElement;
+      const buttonVNode = button('.btn');
+      buttonVNode.elm = buttonElement;
+
+      const divElement = h('div', {}, [buttonElement]) as HTMLDivElement;
+      const divVNode = div({}, [buttonVNode]);
+      divVNode.elm = divElement;
+
+      const parentDiv = h('div', {}, [divElement, isolatedDiv]) as HTMLDivElement;
+      const parentDivVNode = div({}, [divVNode, isolatedDivVNode]);
+      parentDivVNode.elm = parentDiv;
+
+      const isolateModule = new IsolateModule();
+
+      isolateModule.create(isolatedDivVNode, isolatedDivVNode);
+
+      assert.strictEqual(
+        isolateModule.findScope(isolatedDiv),
+        '$$MOTORCYCLEDOM$$-foo',
+        'Isolate module should contain isolatedDiv',
+      );
+
+      assert.strictEqual(isolatedButton.parentElement, isolatedDiv);
+
+      const eventDelegator = new EventDelegator(isolateModule);
+
+      const domSource = new MotorcycleDomSource(just(parentDiv), [], eventDelegator);
+      const isolatedDomSource = domSource.isolateSource(domSource, 'foo');
+
+      domSource.select('.btn').events('click').observe(() => {
+        done(new Error('Parent event listener should not receive isolated event'));
+      });
+
+      isolatedDomSource.select('.btn').events('click').observe((ev) => {
+        assert.strictEqual(ev.target, isolatedButton);
+        done();
+      });
+
+      setTimeout(() => {
+        isolatedButton.click();
+      });
+    });
   });
 });

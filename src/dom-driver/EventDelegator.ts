@@ -70,9 +70,7 @@ function findSelector(selector: string) {
 
 function ensureMatches(selector: string) {
   return function eventTargetMatches(ev: Event) {
-    if (!selector) return true;
-
-    if ((ev.target as HTMLElement).matches(selector)) {
+    if (!selector || (ev.target as HTMLElement).matches(selector)) {
       mutateEvent(ev);
       (ev as any).ownerTarget = ev.target;
 

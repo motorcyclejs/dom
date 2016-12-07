@@ -62,7 +62,7 @@
     "test": "npm run test:lint && npm run test:unit",
     "test:debug": "TS_NODE_PROJECT=test/tsconfig.json node --debug-brk --inspect ./node_modules/.bin/_mocha test/**/*.ts",
     "test:lint": "tslint src/**/*.ts src/*.ts",
-    "test:unit": "TS_NODE_PROJECT=test/tsconfig.json mocha test/**/*.ts"
+    "test:unit": "TS_NODE_PROJECT=test/tsconfig.json mocha test/**/*.ts test/**/**/*.ts"
   },
   "typings": "lib/es2015/index.d.ts",
   "dependencies": {

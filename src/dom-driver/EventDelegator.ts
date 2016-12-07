@@ -61,7 +61,7 @@ function addEventStream(
       .filter(isInScope(scope, isolateModule))
       .multicast();
 
-  scopeMap.set(scope, eventStream);
+  scopeMap.set(scope + '~' + useCapture, eventStream);
 
   return eventStream;
 }

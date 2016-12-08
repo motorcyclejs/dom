@@ -174,6 +174,7 @@ describe('isolation', function () {
       assert.notStrictEqual(typeof correctElement, 'undefined');
       assert.strictEqual(correctElement.tagName, 'H2');
       assert.strictEqual(correctElement.textContent, 'Correct');
+      dispose();
       done();
     });
   });

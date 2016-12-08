@@ -291,7 +291,7 @@ describe('MotorcycleDomSource', () => {
   });
 
   describe('isolation', () => {
-    it('prevents parent from DOM.selecting() inside the isolation', function (done) {
+    it('prevents parent from DOM.selecting() inside the isolation', function () {
       const isolatedButton = h('button.btn', {}, []) as HTMLButtonElement;
       const isolatedButtonVNode = button('.btn');
       isolatedButtonVNode.elm = isolatedButton;
@@ -330,16 +330,15 @@ describe('MotorcycleDomSource', () => {
       const isolatedDomSource = domSource.isolateSource(domSource, 'foo');
 
       domSource.select('.btn').events('click').observe(() => {
-        done(new Error('Parent event listener should not receive isolated event'));
-      });
-
-      isolatedDomSource.select('.btn').events('click').take(1).observe((ev) => {
-        assert.strictEqual(ev.target, isolatedButton);
-        done();
+        throw new Error('Parent event listener should not receive isolated event');
       });
 
       setTimeout(() => {
         isolatedButton.click();
+      });
+
+      return isolatedDomSource.select('.btn').events('click').take(1).observe((ev) => {
+        assert.strictEqual(ev.target, isolatedButton);
       });
     });
   });

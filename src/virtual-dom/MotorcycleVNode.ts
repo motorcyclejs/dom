@@ -6,7 +6,7 @@ export class MotorcycleVNode implements VNode {
     public className: string | undefined,
     public id: string | undefined,
     public data: VNodeData | undefined,
-    public children: Array<VNode | string | null> | undefined,
+    public children: Array<VNode> | undefined,
     public text: string | undefined,
     public elm: Node | undefined,
     public key: string | number | undefined) {

@@ -62,7 +62,15 @@ export const h: HyperscriptFn = function (selector: string, b?: any, c?: any): V
   if (tagName === 'svg')
     addNS(data, children as Array<VNode | string | null>, tagName);
 
-  return new MotorcycleVNode(tagName, className, id, data || {}, children, text, undefined, data && data.key);
+  return new MotorcycleVNode(
+    tagName,
+    className,
+    id,
+    data || {},
+    children as Array<VNode>,
+    text, undefined,
+    data && data.key,
+  );
 };
 
 function parseSelector(sel: string) {

@@ -69,7 +69,7 @@ export interface VirtualNode<T extends Node> {
   className: string | undefined;
   id: string | undefined;
   data: VNodeData | undefined;
-  children: VNodeChildren | undefined;
+  children: Array<VNode> | undefined;
   elm: T | undefined;
   text: string | undefined;
   key: string | number | undefined;

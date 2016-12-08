@@ -1,15 +1,15 @@
 import { Module, VNode } from '../types';
 
 export class IsolateModule implements Module {
-  public create(formerVNode: VNode, vNode: VNode) {
-    this.setAndRemoveScopes(formerVNode, vNode);
+  public create(_: VNode, vNode: VNode) {
+    this.setAndRemoveScopes(vNode);
   }
 
-  public update(formerVNode: VNode, vNode: VNode) {
-    this.setAndRemoveScopes(formerVNode, vNode);
+  public update(_: VNode, vNode: VNode) {
+    this.setAndRemoveScopes(vNode);
   }
 
-  private setAndRemoveScopes(formerVNode: VNode, vNode: VNode) {
+  private setAndRemoveScopes(vNode: VNode) {
     const scope = scopeFromVNode(vNode);
 
     if (!scope) return;
@@ -19,6 +19,7 @@ export class IsolateModule implements Module {
     addScopeToChildren(vNode.elm.children, scope);
   }
 }
+
 function addScopeToChildren(children: HTMLCollection, scope: string) {
   if (!children) return;
 
@@ -34,10 +35,6 @@ function addScopeToChildren(children: HTMLCollection, scope: string) {
     if (child.children)
       addScopeToChildren(child.children, scope);
   }
-}
-
-function noop() {
-  return void 0;
 }
 
 function scopeFromVNode(vNode: VNode) {

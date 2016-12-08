@@ -606,8 +606,6 @@ describe('snabbdom', function () {
         let result2: any[] = [];
         function cb(result: any[], oldVnode: VNode, vnode: VNode) {
           if (result.length > 0) {
-            console.log(result[result.length - 1]);
-            console.log(oldVnode);
             assert.strictEqual(result[result.length - 1], oldVnode);
           }
           result.push(vnode);

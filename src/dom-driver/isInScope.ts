@@ -1,15 +1,11 @@
 import { IsolateModule } from '../modules/IsolateModule';
 
-export function isInScope(scope: string, isolateModule: IsolateModule) {
+export function isInScope(scope: string) {
   return function (element: HTMLElement) {
-    for (; element; element = element.parentElement as HTMLElement) {
-      const matchedScope = isolateModule.findScope(element);
+    if (!scope && !element.hasAttribute('data-isolate')) return true;
 
-      if (matchedScope && matchedScope !== scope) return false;
+    if (scope && !element.hasAttribute('data-isolate')) return false;
 
-      if (matchedScope) return true;
-    }
-
-    return !scope;
+    return element.getAttribute('data-isolate') === scope;
   };
 }

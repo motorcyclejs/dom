@@ -31,6 +31,8 @@ export class MotorcycleDomSource implements DomSource {
   public select(cssSelector: string): DomSource {
     const trimmedSelector = cssSelector.trim();
 
+    if (trimmedSelector === ':root') return this;
+
     if (elementMap.has(trimmedSelector))
       return new ElementDomSource(
         this._rootElement$,
@@ -39,13 +41,9 @@ export class MotorcycleDomSource implements DomSource {
         elementMap.get(trimmedSelector) as HTMLElement,
       );
 
-    const amendedNamespace = trimmedSelector === `:root`
-      ? this._namespace
-      : this._namespace.concat(trimmedSelector);
-
     return new MotorcycleDomSource(
       this._rootElement$,
-      amendedNamespace,
+      this._namespace.concat(trimmedSelector),
       this._delegator,
     );
   }
@@ -68,7 +66,7 @@ export class MotorcycleDomSource implements DomSource {
       if (element.matches(selectors))
         matchedNodesArray.push(element);
 
-      return matchedNodesArray.filter(isInScope(scope, delegator.isolateModule));
+      return matchedNodesArray.filter(isInScope(scope));
     });
   }
 

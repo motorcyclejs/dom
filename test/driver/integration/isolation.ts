@@ -278,8 +278,6 @@ describe('isolation', function () {
     function App(sources: Sources) {
       const triangleElement$ = sources.DOM.select('.triangle').elements();
 
-      triangleElement$.observe(console.log);
-
       const svgTriangle = svg({ attrs: { width: 150, height: 150 } }, [
         svg.polygon({
           attrs: {

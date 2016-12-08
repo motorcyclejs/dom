@@ -221,42 +221,21 @@ describe('MotorcycleDomSource', () => {
       });
     });
 
-    it('should have currentTarget pointing to correct element', () => {
-      const element = h('div.top', [
-        h('h2.parent', [
-          h('span.child', 'Hello World'),
-        ]),
-      ]);
-
-      const domSource = new MotorcycleDomSource(just(element), ['.parent']);
-
-      setTimeout(() => {
-        (element.querySelector('h2') as HTMLElement).click();
-      });
-
-      return domSource.events('click').take(1).observe(ev => {
-        assert.strictEqual(ev.type, 'click');
-        assert.strictEqual(ev.currentTarget, element.children[0]);
-      });
-    });
-
-    it('captures non-bubbling reset form event', (done) => {
+    it('captures non-bubbling events', () => {
       const form = h('form.form', [
-        h('input.field', { type: 'text' }),
+        h('input', { type: 'text' }),
       ]);
 
-      const element = h('div', {}, [ form ]);
+      const element = h('div', {}, [form]);
 
-      const domSource = new MotorcycleDomSource(just(element), []);
-
-      domSource.select('.form').events('reset').observe(ev => {
-        assert.strictEqual(ev.type, 'reset');
-        assert.strictEqual((ev.target as HTMLElement).tagName, 'FORM');
-        done();
-      });
+      const domSource = new MotorcycleDomSource(just(element), ['.form']);
 
       setTimeout(() => {
-        form.dispatchEvent(new Event('reset'));
+        form.dispatchEvent(new Event('reset', { bubbles: false }));
+      });
+
+      return domSource.events('reset').take(1).observe(ev => {
+        assert.strictEqual(ev.type, 'reset');
       });
     });
   });
@@ -315,16 +294,11 @@ describe('MotorcycleDomSource', () => {
       const isolateModule = new IsolateModule();
 
       isolateModule.create(isolatedDivVNode, isolatedDivVNode);
+      isolateModule.create(isolatedButtonVNode, isolatedButtonVNode);
 
-      assert.strictEqual(
-        isolateModule.findScope(isolatedDiv),
-        '$$MOTORCYCLEDOM$$-foo',
-        'Isolate module should contain isolatedDiv',
-      );
+      assert.strictEqual(isolatedButton.getAttribute('data-isolate'), '$$MOTORCYCLEDOM$$-foo');
 
-      assert.strictEqual(isolatedButton.parentElement, isolatedDiv);
-
-      const eventDelegator = new EventDelegator(isolateModule);
+      const eventDelegator = new EventDelegator();
 
       const domSource = new MotorcycleDomSource(just(parentDiv), [], eventDelegator);
       const isolatedDomSource = domSource.isolateSource(domSource, 'foo');

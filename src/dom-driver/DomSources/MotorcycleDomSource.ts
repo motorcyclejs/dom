@@ -65,6 +65,9 @@ export class MotorcycleDomSource implements DomSource {
       const matchedNodes = element.querySelectorAll(selectors);
       const matchedNodesArray = copy(matchedNodes as any as Array<any>);
 
+      if (element.matches(selectors))
+        matchedNodesArray.push(element);
+
       return matchedNodesArray.filter(isInScope(scope, delegator.isolateModule));
     });
   }

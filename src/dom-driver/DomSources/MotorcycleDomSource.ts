@@ -1,18 +1,24 @@
 import { Stream } from 'most';
 import { copy } from '@most/prelude';
 import { domEvent } from '@most/dom-event';
-import { EventDelegator } from '../EventDelegator';
-import { DomSource, EventsFnOptions, StandardEvents, VNode } from '../../types';
+import { EventDelegator, EventListenerInput } from './EventDelegator';
+import { DomSource, EventsFnOptions, StandardEvents, VNode, VNodeData } from '../../types';
 import { shouldUseCapture } from './shouldUseCapture';
 import { ElementDomSource } from './ElementDomSource';
 import { elementMap } from './elementMap';
 import { SCOPE_PREFIX } from './common';
-import { isInScope } from '../isInScope';
+import { isInScope } from './isInScope';
+import { generateScope, generateSelector } from './namespaceParsers';
+import { createScopedEventStream } from './createScopedEventStream';
+
+const SCOPE_SEPARATOR = `~`;
 
 export class MotorcycleDomSource implements DomSource {
   protected _rootElement$: Stream<HTMLElement>;
   protected _namespace: Array<string>;
   protected _delegator: EventDelegator;
+  protected _selector: string;
+  protected _scope: string;
 
   constructor(
     rootElement$: Stream<HTMLElement>,
@@ -22,6 +28,8 @@ export class MotorcycleDomSource implements DomSource {
     this._rootElement$ = rootElement$;
     this._namespace = namespace;
     this._delegator = delegator;
+    this._scope = generateScope(namespace);
+    this._selector = generateSelector(namespace);
   }
 
   public namespace(): Array<string> {
@@ -50,24 +58,15 @@ export class MotorcycleDomSource implements DomSource {
 
   public elements(): Stream<Element[]> {
     const namespace = this._namespace;
-    const delegator = this._delegator;
-
-    const selectors = namespace.filter(x => !x.startsWith(SCOPE_PREFIX)).join(' ');
-    const scope = generateScope(namespace);
 
     if (namespace.length === 0)
       return this._rootElement$.map(Array);
 
-    // TODO: Add test to ensure top element can be matched as well as children elements
-    return this._rootElement$.map(element => {
-      const matchedNodes = element.querySelectorAll(selectors);
-      const matchedNodesArray = copy(matchedNodes as any as Array<any>);
+    const selector = this._selector;
+    const scope = this._scope;
+    const matchElement = findMatchingElements(selector, isInScope(scope));
 
-      if (element.matches(selectors))
-        matchedNodesArray.push(element);
-
-      return matchedNodesArray.filter(isInScope(scope));
-    });
+    return this._rootElement$.map(matchElement);
   }
 
   public events<T extends Event>(eventType: StandardEvents, options?: EventsFnOptions): Stream<T>;
@@ -77,13 +76,24 @@ export class MotorcycleDomSource implements DomSource {
 
     const useCapture = shouldUseCapture(eventType, options.useCapture || false);
 
-    return this._rootElement$
-      .map(rootElement => {
-        if (namespace.length === 0)
-          return domEvent(eventType, rootElement, useCapture);
+    if (namespace.length === 0)
+      return this._rootElement$
+        // take(1) is added because the rootElement will never be patched, because
+        // the comparisons inside of makDomDriver only compare tagName, className,
+        // and id. Attributes and properties will never be altered by the virtual-dom.
+        .take(1)
+        .map(element => domEvent(eventType, element, useCapture))
+        .switch()
+        .multicast();
 
-        return this._delegator.addEventListener(namespace, rootElement, eventType, useCapture);
-      })
+    const delegator = this._delegator;
+
+    const eventListenerInput: EventListenerInput =
+      this.createEventListenerInput(eventType, useCapture);
+
+    return this._rootElement$
+      .map(findMostSpecificElement(this._scope))
+      .map(element => delegator.addEventListener(element, eventListenerInput))
       .switch()
       .multicast();
   }
@@ -94,22 +104,50 @@ export class MotorcycleDomSource implements DomSource {
 
   public isolateSink(sink: Stream<VNode>, scope: string): Stream<VNode> {
     return sink.tap(vNode => {
-      if (!vNode.data) vNode.data = {};
+      const prefixedScope = SCOPE_PREFIX + scope;
 
-      if (!vNode.data.isolate)
-        vNode.data.isolate = SCOPE_PREFIX + scope;
+      if (!(vNode.data as VNodeData).isolate)
+        (vNode.data as VNodeData).isolate = prefixedScope;
 
-      if (!vNode.key) vNode.key = SCOPE_PREFIX + scope;
+      if (!vNode.key) vNode.key = prefixedScope;
     });
+  }
+
+  private createEventListenerInput(eventType: string, useCapture: boolean) {
+    const scope = this._scope;
+    const selector = this._selector;
+    const delegator = this._delegator;
+
+    const checkElementIsInScope = isInScope(scope);
+    const scopeMap = delegator.findScopeMap(eventType);
+    const createEventStreamFromElement =
+      createScopedEventStream(selector, eventType, useCapture, checkElementIsInScope);
+
+    const scopeWithUseCapture: string =
+      scope + SCOPE_SEPARATOR + useCapture;
+
+    return {
+      scopeMap,
+      createEventStreamFromElement,
+      scope: scopeWithUseCapture,
+    };
   }
 }
 
-function generateScope(namespace: Array<string>) {
-  const scopes = namespace.filter(findScope);
+function findMostSpecificElement(scope: string) {
+  return function queryForElement (rootElement: Element): Element {
+    return rootElement.querySelector(`[data-isolate='${scope}']`) || rootElement;
+  };
+};
 
-  return scopes[scopes.length - 1];
-}
+function findMatchingElements(selector: string, checkIsInScope: (element: HTMLElement) => boolean) {
+  return function (element: HTMLElement): Array<HTMLElement> {
+    const matchedNodes = element.querySelectorAll(selector);
+    const matchedNodesArray = copy(matchedNodes as any as Array<any>);
 
-function findScope(selector: string): boolean {
-  return selector.startsWith(SCOPE_PREFIX);
+    if (element.matches(selector))
+      matchedNodesArray.push(element);
+
+    return matchedNodesArray.filter(checkIsInScope);
+  };
 }

@@ -3,7 +3,6 @@ import { empty, just } from 'most';
 import { DomSource, div, button } from '../../src';
 import * as h from 'hyperscript';
 import { MotorcycleDomSource } from '../../src/dom-driver/DomSources';
-import { EventDelegator } from '../../src/dom-driver/EventDelegator';
 import { IsolateModule } from '../../src/modules/IsolateModule';
 
 describe('MotorcycleDomSource', () => {
@@ -298,9 +297,7 @@ describe('MotorcycleDomSource', () => {
 
       assert.strictEqual(isolatedButton.getAttribute('data-isolate'), '$$MOTORCYCLEDOM$$-foo');
 
-      const eventDelegator = new EventDelegator();
-
-      const domSource = new MotorcycleDomSource(just(parentDiv), [], eventDelegator);
+      const domSource = new MotorcycleDomSource(just(parentDiv), []);
       const isolatedDomSource = domSource.isolateSource(domSource, 'foo');
 
       domSource.select('.btn').events('click').observe(() => {

@@ -1,6 +1,6 @@
 import { Stream } from 'most';
 import { domEvent } from '@most/dom-event';
-import { EventDelegator } from '../EventDelegator';
+import { EventDelegator } from './EventDelegator';
 import { DomSource, EventsFnOptions, StandardEvents, VNode } from '../../types';
 import { shouldUseCapture } from './shouldUseCapture';
 import { MotorcycleDomSource } from './MotorcycleDomSource';

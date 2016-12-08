@@ -3,7 +3,6 @@ import { hold } from 'most-subject';
 import { DriverFn } from '@motorcycle/core';
 import { vNodeWrapper } from './vNodeWrapper';
 import { MotorcycleDomSource } from './DomSources';
-import { EventDelegator } from './EventDelegator';
 import { init } from '../virtual-dom';
 import {
   IsolateModule,
@@ -23,7 +22,6 @@ export function makeDomDriver(
   options: DomDriverOptions = { modules: defaultModules }): DriverFn
 {
   const modules = options.modules || defaultModules;
-  const eventDelegator = new EventDelegator();
   const patch = init(modules.concat(new IsolateModule()));
   const rootVNode = emptyNodeAt(rootElement);
   const wrapVNodeInRootElement = vNodeWrapper(rootElement);
@@ -39,7 +37,7 @@ export function makeDomDriver(
       .catch(err => console.error(err))
       .then(() => console.log('Dom Driver has terminated'));
 
-    return new MotorcycleDomSource(rootElement$, [], eventDelegator);
+    return new MotorcycleDomSource(rootElement$, []);
   };
 }
 

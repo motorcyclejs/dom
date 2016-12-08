@@ -4,13 +4,11 @@ import { MotorcycleVNode } from '../virtual-dom/MotorcycleVNode';
 export function vNodeWrapper(rootElement: HTMLElement): (vNode: VNode) => VNode {
   const {
     tagName: rootElementTagName,
-    id: rootElementId,
-    className: rootElementClassName,
+    id,
+    className,
   } = rootElement;
 
   const tagName = rootElementTagName.toLowerCase();
-  const id = rootElementId;
-  const className = rootElementClassName;
 
   return function execute(vNode: VNode): VNode {
     const {

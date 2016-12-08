@@ -371,11 +371,7 @@ describe('DOMSource.events()', function () {
     ;
   });
 
-  // This test does not work if and only if the browser is unfocused in the
-  // operating system. In some browsers in SauceLabs, this test would always
-  // fail for that reason. Until we find how to force the browser to be
-  // focused, we can't run this test.
-  it.skip('should catch a blur event with useCapture', function (done) {
+  it('should catch a blur event with useCapture', function (done) {
     function app() {
       return {
         DOM: most.of(div('.parent', [
@@ -409,11 +405,7 @@ describe('DOMSource.events()', function () {
     ;
   });
 
-  // This test does not work if and only if the browser is unfocused in the
-  // operating system. In some browsers in SauceLabs, this test would always
-  // fail for that reason. Until we find how to force the browser to be
-  // focused, we can't run this test.
-  it.skip('should catch a blur event by default (no options)', function (done) {
+  it('should catch a blur event by default (no options)', function (done) {
     function app() {
       return {
         DOM: most.of(div('.parent', [

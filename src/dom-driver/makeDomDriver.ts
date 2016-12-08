@@ -23,9 +23,8 @@ export function makeDomDriver(
   options: DomDriverOptions = { modules: defaultModules }): DriverFn
 {
   const modules = options.modules || defaultModules;
-  const isolateModule = new IsolateModule();
-  const eventDelegator = new EventDelegator(isolateModule);
-  const patch = init(modules.concat(isolateModule));
+  const eventDelegator = new EventDelegator();
+  const patch = init(modules.concat(new IsolateModule()));
   const rootVNode = emptyNodeAt(rootElement);
   const wrapVNodeInRootElement = vNodeWrapper(rootElement);
 

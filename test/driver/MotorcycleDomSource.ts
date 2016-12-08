@@ -333,7 +333,7 @@ describe('MotorcycleDomSource', () => {
         done(new Error('Parent event listener should not receive isolated event'));
       });
 
-      isolatedDomSource.select('.btn').events('click').observe((ev) => {
+      isolatedDomSource.select('.btn').events('click').take(1).observe((ev) => {
         assert.strictEqual(ev.target, isolatedButton);
         done();
       });

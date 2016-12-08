@@ -52,16 +52,20 @@ export class ElementDomSource implements DomSource {
   }
 
   public elements(): Stream<Element[]> {
-    return this._rootElement$.map(() => [this._element]);
+    return this._rootElement$.constant([this._element]);
   }
 
   public events<T extends Event>(eventType: StandardEvents, options?: EventsFnOptions): Stream<T>;
   public events<T extends Event>(eventType: string, options?: EventsFnOptions): Stream<T>;
   public events(eventType: StandardEvents, options: EventsFnOptions = {}) {
-    const useCapture = shouldUseCapture(eventType, options.useCapture || false);
+    const useCapture: boolean =
+      shouldUseCapture(eventType, options.useCapture || false);
 
-    return this._rootElement$.constant(this._element)
-      .map(element => domEvent(eventType, element, useCapture))
+    const event$: Stream<Event> =
+      domEvent(eventType, this._element, useCapture);
+
+    return this._rootElement$
+      .constant(event$)
       .switch()
       .multicast();
   }
@@ -74,7 +78,10 @@ export class ElementDomSource implements DomSource {
     return sink.tap(vNode => {
       if (!vNode.data) vNode.data = {};
 
-      vNode.data.isolate = SCOPE_PREFIX + scope;
+      if (!vNode.data.isolate)
+        vNode.data.isolate = SCOPE_PREFIX + scope;
+
+      if (!vNode.key) vNode.key = SCOPE_PREFIX + scope;
     });
   }
 }

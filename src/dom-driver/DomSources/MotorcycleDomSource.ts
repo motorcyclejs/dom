@@ -54,13 +54,14 @@ export class MotorcycleDomSource implements DomSource {
     const namespace = this._namespace;
     const delegator = this._delegator;
 
+    const selectors = namespace.filter(x => !x.startsWith(SCOPE_PREFIX)).join(' ');
+    const scope = generateScope(namespace);
+
     if (namespace.length === 0)
       return this._rootElement$.map(Array);
 
+    // TODO: Add test to ensure top element can be matched as well as children elements
     return this._rootElement$.map(element => {
-      const selectors = namespace.filter(x => !x.startsWith(SCOPE_PREFIX)).join(' ');
-      const scope = generateScope(namespace);
-
       const matchedNodes = element.querySelectorAll(selectors);
       const matchedNodesArray = copy(matchedNodes as any as Array<any>);
 

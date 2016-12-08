@@ -9,9 +9,10 @@ type ScopeMap = Map<Scope, Stream<Event>>;
 type EventMap = Map<EventType, ScopeMap>;
 
 const SCOPE_PREFIX = `$$MOTORCYCLEDOM$$-`;
+const SCOPE_SEPARATOR = `~`;
 
 export class EventDelegator {
-  private eventMap: EventMap= new Map();
+  private eventMap: EventMap = new Map();
 
   constructor(public isolateModule = new IsolateModule()) {}
 
@@ -21,7 +22,7 @@ export class EventDelegator {
     eventType: EventType,
     useCapture: boolean,
   ): Stream<Event> {
-    const scope = generateScope(namespace) + '~' + useCapture;
+    const scope = generateScope(namespace) + SCOPE_SEPARATOR + useCapture;
 
     const eventMap = this.eventMap;
 
@@ -29,12 +30,21 @@ export class EventDelegator {
       ? eventMap.get(eventType) as Map<Scope, Stream<Event>>
       : addScopeMap(eventMap, eventType);
 
-    const element = this.isolateModule.findElement(scope) || rootElement;
+    const element: Element =
+      findMostSpecificElement(scope, rootElement, this.isolateModule);
 
     return scopeMap.has(scope)
       ? scopeMap.get(scope) as Stream<Event>
       : addEventStream(scopeMap, namespace, element, eventType, useCapture, this.isolateModule);
   }
+}
+
+function findMostSpecificElement(
+  scope: string,
+  rootElement: Element,
+  isolateModule: IsolateModule): Element
+{
+  return isolateModule.findElement(scope) || rootElement;
 }
 
 function addScopeMap(eventMap: EventMap, eventType: EventType) {
@@ -60,11 +70,11 @@ function addEventStream(
 
   const eventStream: Stream<DomEvent> =
     (domEvent(eventType, element, useCapture) as Stream<DomEvent>)
-      .filter(ensureMatches(selector, element))
+      .filter(ensureMatches(selector))
       .filter(ev => checkElementIsInScope(ev.target as HTMLElement))
       .multicast();
 
-  scopeMap.set(scope + '~' + useCapture, eventStream);
+  scopeMap.set(scope + SCOPE_SEPARATOR + useCapture, eventStream);
 
   return eventStream;
 }
@@ -73,9 +83,9 @@ function findSelector(selector: string) {
   return !selector.startsWith(SCOPE_PREFIX);
 }
 
-function ensureMatches(selector: string, element: Element) {
+function ensureMatches(selector: string) {
   return function eventTargetMatches(ev: Event) {
-    if (isMatch(selector, element, ev.target as Element)) {
+    if (isMatch(selector, ev.target as Element)) {
       mutateEvent(ev);
       (ev as any).ownerTarget = ev.target;
 
@@ -86,10 +96,8 @@ function ensureMatches(selector: string, element: Element) {
   };
 }
 
-function isMatch(selector: string, rootElement: Element, target: Element) {
-  if (!selector || target.matches(selector)) return true;
-
-  return false;
+function isMatch(selector: string, target: Element) {
+  return !selector || target.matches(selector);
 }
 
 function mutateEvent(ev: Event) {

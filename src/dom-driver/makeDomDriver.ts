@@ -22,15 +22,16 @@ export function makeDomDriver(
   rootElement: HTMLElement,
   options: DomDriverOptions = { modules: defaultModules }): DriverFn
 {
-  // const isolateModule = new IsolateModule()
   const modules = options.modules || defaultModules;
   const isolateModule = new IsolateModule();
   const eventDelegator = new EventDelegator(isolateModule);
   const patch = init(modules.concat(isolateModule));
+  const rootVNode = emptyNodeAt(rootElement);
+  const wrapVNodeInRootElement = vNodeWrapper(rootElement);
 
   return function DomDriver(vNode$: Stream<VNode>): DomSource {
     const rootVNode$: Stream<VNode> =
-      scan<VNode, VNode>(patch, emptyNodeAt(rootElement), map(vNodeWrapper(rootElement), vNode$));
+      scan<VNode, VNode>(patch, rootVNode, map(wrapVNodeInRootElement, vNode$));
 
     const rootElement$: Stream<HTMLElement> =
       map(vNodeToElement, rootVNode$).thru(hold(1));

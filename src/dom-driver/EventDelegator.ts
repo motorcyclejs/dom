@@ -14,7 +14,7 @@ const SCOPE_SEPARATOR = `~`;
 export class EventDelegator {
   private eventMap: EventMap = new Map();
 
-  constructor(public isolateModule = new IsolateModule()) {}
+  constructor() {}
 
   public addEventListener(
     namespace: Array<string>,
@@ -22,7 +22,7 @@ export class EventDelegator {
     eventType: EventType,
     useCapture: boolean,
   ): Stream<Event> {
-    const scope = generateScope(namespace) + SCOPE_SEPARATOR + useCapture;
+    const scope = generateScope(namespace);
 
     const eventMap = this.eventMap;
 
@@ -31,20 +31,19 @@ export class EventDelegator {
       : addScopeMap(eventMap, eventType);
 
     const element: Element =
-      findMostSpecificElement(scope, rootElement, this.isolateModule);
+      findMostSpecificElement(scope, rootElement);
 
-    return scopeMap.has(scope)
-      ? scopeMap.get(scope) as Stream<Event>
-      : addEventStream(scopeMap, namespace, element, eventType, useCapture, this.isolateModule);
+    return scopeMap.has(scope + SCOPE_SEPARATOR + useCapture)
+      ? scopeMap.get(scope + SCOPE_SEPARATOR + useCapture) as Stream<Event>
+      : addEventStream(scopeMap, namespace, element, eventType, useCapture);
   }
 }
 
 function findMostSpecificElement(
   scope: string,
-  rootElement: Element,
-  isolateModule: IsolateModule): Element
+  rootElement: Element): Element
 {
-  return isolateModule.findElement(scope) || rootElement;
+  return rootElement.querySelector(`[data-isolate='${scope}']`) || rootElement;
 }
 
 function addScopeMap(eventMap: EventMap, eventType: EventType) {
@@ -61,17 +60,17 @@ function addEventStream(
   element: Element,
   eventType: EventType,
   useCapture: boolean,
-  isolateModule: IsolateModule,
 ): Stream<DomEvent> {
   const selector = namespace.filter(findSelector).join(' ');
   const scope = generateScope(namespace);
 
-  const checkElementIsInScope = isInScope(scope, isolateModule);
+  const checkElementIsInScope = isInScope(scope);
 
   const eventStream: Stream<DomEvent> =
     (domEvent(eventType, element, useCapture) as Stream<DomEvent>)
-      .filter(ensureMatches(selector))
+      .filter(ev => element.contains(ev.target as HTMLElement))
       .filter(ev => checkElementIsInScope(ev.target as HTMLElement))
+      .filter(ensureMatches(selector, element))
       .multicast();
 
   scopeMap.set(scope + SCOPE_SEPARATOR + useCapture, eventStream);
@@ -83,34 +82,16 @@ function findSelector(selector: string) {
   return !selector.startsWith(SCOPE_PREFIX);
 }
 
-function ensureMatches(selector: string) {
+function ensureMatches(selector: string, element: Element) {
   return function eventTargetMatches(ev: Event) {
-    if (isMatch(selector, ev.target as Element)) {
-      mutateEvent(ev);
-      (ev as any).ownerTarget = ev.target;
-
-      return true;
-    }
-
-    return false;
+    return isMatch(selector, ev.target as Element, element);
   };
 }
 
-function isMatch(selector: string, target: Element) {
-  return !selector || target.matches(selector);
-}
-
-function mutateEvent(ev: Event) {
-  try {
-    Object.defineProperty(ev, 'currentTarget', {
-      value: ev.target,
-      configurable: true,
-      writable: true,
-      enumerable: true,
-    });
-  } catch (e) {
-    console.log(`Please use event.ownerTarget as a replacement for event.currentTarget`);
-  }
+function isMatch(selector: string, target: Element, rootElement: Element) {
+  return !selector ||
+    target.matches(selector) ||
+    rootElement.matches(selector);
 }
 
 export interface DomEvent extends Event {

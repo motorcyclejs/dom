@@ -1,6 +1,5 @@
 import { Stream } from 'most';
 import { domEvent } from '@most/dom-event';
-import { IsolateModule } from '../modules/IsolateModule';
 import { isInScope } from './isInScope';
 
 export type EventType = string;
@@ -68,7 +67,6 @@ function addEventStream(
 
   const eventStream: Stream<DomEvent> =
     (domEvent(eventType, element, useCapture) as Stream<DomEvent>)
-      .filter(ev => element.contains(ev.target as HTMLElement))
       .filter(ev => checkElementIsInScope(ev.target as HTMLElement))
       .filter(ensureMatches(selector, element))
       .multicast();

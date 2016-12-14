@@ -69,7 +69,7 @@
     "test": "npm run test:lint && npm run test:unit && npm run test:browser",
     "test:browser": "browserify -p [ tsify -p test/tsconfig.json ] test/index.ts -o test/bundle.js && karma start --single-run",
     "test:debug": "TS_NODE_PROJECT=test/tsconfig.json node --debug-brk --inspect ./node_modules/.bin/_mocha test/**/*.ts",
-    "test:lint": "tslint src/**/*.ts src/*.ts",
+    "test:lint": "tslint src/**/*.ts src/*.ts test/*.ts test/**/*.ts test/**/**/*.ts test/**/**/**/*.ts",
     "test:unit": "TS_NODE_PROJECT=test/tsconfig.json mocha test/**/*.ts test/**/**/*.ts"
   },
   "typings": "lib/es2015/index.d.ts",

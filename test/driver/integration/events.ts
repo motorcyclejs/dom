@@ -372,7 +372,7 @@ describe('DOMSource.events()', function () {
   });
 
   it('should catch a blur event with useCapture', function (done) {
-    if (!document.hasFocus()) done();
+    if (!document.hasFocus()) return done();
 
     function app() {
       return {
@@ -408,7 +408,7 @@ describe('DOMSource.events()', function () {
   });
 
   it('should catch a blur event by default (no options)', function (done) {
-    if (!document.hasFocus()) done();
+    if (!document.hasFocus()) return done();
 
     function app() {
       return {

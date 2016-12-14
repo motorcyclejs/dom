@@ -78,9 +78,9 @@ const classIdSplit = /([\.#]?[a-zA-Z0-9\u007F-\uFFFF_:-]+)/;
 export function parseSelector (selector: string) {
   let tagName: string | void;
   let id = '';
-  let classes: Array<string> = [];
+  const classes: Array<string> = [];
 
-  let tagParts = selector.split(classIdSplit);
+  const tagParts = selector.split(classIdSplit);
 
   let part: string | void;
   let type;

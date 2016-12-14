@@ -1,7 +1,7 @@
 import { VNode } from '../../types';
 import { parseSelector } from './h';
 
-export function hasCssSelector(cssSelector: string, vNode: VNode) {
+export function hasCssSelector(cssSelector: string, vNode: VNode): boolean {
   if (cssSelector.indexOf(' ') > -1)
     throw new Error('CSS selectors can not contain spaces');
 

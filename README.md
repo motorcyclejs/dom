@@ -177,10 +177,13 @@ A functional implementation for `DomSource.elements()`.
 A functional implementation for `DomSource.events(eventType)`. This function is
 curried by default.
 
-**`select(cssSelector: string, domSource: DomSource): DomSource`**
+**`query(cssSelector: string, domSource: DomSource): DomSource`**
 
 A functional implementation for `DomSource.select(cssSelector)`. This function is
 curried by default.
+
+The name of this function is `query` and not `select` because it is a name conflict
+with the hyperscript helper function for the `SELECT` HTML element.
 
 **`useCapture(domSource: DomSource): DomSource`**
 

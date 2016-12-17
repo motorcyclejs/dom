@@ -21,7 +21,7 @@ used.
 - [`mockDomSource`](#mockDomSource)
 - [`h`](#h)
 - [`hasCssSelector`](#hasCssSelector)
-- [`API Wrapper`](#api-wrappers)
+- [`API Wrappers`](#api-wrappers)
 
 ### <a id="makeDomDriver"></a> `makeDomDriver(container, options)`
 

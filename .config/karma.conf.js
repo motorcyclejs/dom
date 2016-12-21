@@ -17,7 +17,7 @@ module.exports = function (config) {
         '**/*.ts': ['karma-typescript'],
       },
 
-      reporters: ['progress', 'karma-typescript'],
+      reporters: [],
 
       customLaunchers: {
         Chrome_travis_ci: {
@@ -47,11 +47,14 @@ module.exports = function (config) {
 
   if (process.env.TRAVIS) {
     options.browsers.push('Chrome_travis_ci', 'Firefox')
-    options.reporters.push('coveralls')
+    options.reporters.push('coverage', 'coveralls')
   }
 
   if (options.browsers.length === 0)
     options.browsers.push('Chrome', 'Firefox')
+
+  if (options.reporters.length === 0)
+    options.reports.push('progress', 'karma-typescript')
 
   config.set(options);
 }

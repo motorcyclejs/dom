@@ -28,6 +28,11 @@ module.exports = function (config) {
 
       browsers: [],
 
+      coverageReporter: {
+        type: 'lcov',
+        dir: 'coverage'
+      },
+
       karmaTypescriptConfig: {
         tsconfig: 'tsconfig.json',
         reports: {

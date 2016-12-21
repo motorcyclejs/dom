@@ -149,11 +149,15 @@ function findMostSpecificElement(scope: string) {
 
 function findMatchingElements(selector: string, checkIsInScope: (element: HTMLElement) => boolean) {
   return function (element: HTMLElement): Array<HTMLElement> {
-    const matchedNodes = element.querySelectorAll(selector);
-    const matchedNodesArray = copy(matchedNodes as any as Array<any>);
+    const matchedNodesArray: HTMLElement[] = [];
 
-    if (element.matches(selector))
+    if (!selector || element.matches(selector))
       matchedNodesArray.push(element);
+
+    if (!selector) return matchedNodesArray;
+
+    const matchedNodes = element.querySelectorAll(selector);
+    matchedNodesArray.concat(copy(matchedNodes as any as Array<any>));
 
     return matchedNodesArray.filter(checkIsInScope);
   };

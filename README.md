@@ -4,6 +4,8 @@
 
 A Driver for Motorcycle.js built to interact with the DOM.
 
+**DEPRECATED!** Please use [the newer Motorcycle.js](https://github.com/motorcyclejs/motorcyclejs)
+
 ## Let me have it!
 ```sh
 npm install --save @motorcycle/dom

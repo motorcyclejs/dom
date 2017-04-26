@@ -5,7 +5,9 @@
 
   "editor.rulers": [80, 160],
 
-  "editor.wrappingColumn": 120,
+  "editor.wordWrap": "wordWrapColumn",
+
+  "editor.wordWrapColumn": 120,
 
   "editor.wrappingIndent": "indent",
 
